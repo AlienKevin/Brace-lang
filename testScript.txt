@@ -1,0 +1,30 @@
+//this is a sample program
+32->$var1
+40->$var2
+$var1+$var2->$var3
+/*
+if A=0{
+	Disp "A"
+} elif B=0{
+	Disp "B"
+} elif C=0{
+	Disp "C"
+} elif D=0{
+	Disp "D"
+}
+*/
+//comments
+if A=0{
+	Disp "A",A
+	if B=0{
+		Disp "B",B
+	} else{
+		if C=0{
+			Disp "C",C
+		} else{
+			if D=0{
+				Disp "D",D
+			}
+		}
+	}
+}
