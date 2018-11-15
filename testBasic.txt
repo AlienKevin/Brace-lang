@@ -1,6 +1,6 @@
-32->L1(1)40->L1(2)L1(1)+L1(2)->L1(3)If A=0
-ThenDisp "A",AIf B=0
-ThenDisp "B",B ElseIf C=0
+32->L1(1)40->L1(2)L1(1)+L1(2)->L1(3)If L1(4)=0
+ThenDisp "A",AIf L1(5)=0
+ThenDisp "B",B ElseIf L1(6)=0
 ThenDisp "C",C ElseIf D=0
 ThenDisp "D",D
 End

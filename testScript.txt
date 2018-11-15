@@ -14,12 +14,12 @@ if A=0{
 }
 */
 //comments
-if A=0{
+if $A=0{
 	Disp "A",A
-	if B=0{
+	if $B=0{
 		Disp "B",B
 	} else{
-		if C=0{
+		if $C=0{
 			Disp "C",C
 		} else{
 			if D=0{

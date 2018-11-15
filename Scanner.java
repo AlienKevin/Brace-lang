@@ -14,10 +14,22 @@ public class Scanner {
 	private static final List<String> keywords = Arrays
 			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat" });
 	private List<String> variables = new ArrayList<>();
+	private Scanner nestedScanner;
 	private int closingBraceIndex = 0;
 	private int numberOfElif = 1;
 
 	public Scanner(String source) {
+		setSource(source);
+	}
+	
+	public void setVariables(List<String> variables) {
+		this.variables.clear();
+		for (String variable : variables) {
+			this.variables.add(variable);
+		}
+	}
+	
+	public void setSource(String source) {
 		this.source = source;
 		this.target = "";
 	}
@@ -216,7 +228,11 @@ public class Scanner {
 			advance();
 		}
 		// always append "Then" after "if"
-		String text = source.substring(start, current).replace("if", "If") + "\nThen";
+		nestedScanner = new Scanner(source.substring(start + 2, current));
+		nestedScanner.setVariables(this.variables);
+		String conditionalExpression = nestedScanner.scanTokens();
+		this.setVariables(nestedScanner.variables);
+		String text = "If" + conditionalExpression + "\nThen";
 		addToken(text);
 	}
 
