@@ -1,41 +1,32 @@
-//this is a sample program
-//another line of comment
 func input($str, $var){
 	Input $str,A
-	A->$var
+	$var=A
+	//local variables
+	$doubledVar=$var*2
+	$var=$doubledVar
 }
+$var=32
+$var2=65
+"What's your name?"->Str1
 input(Str1, $name)
-32->$var1
-40->$var2
-$var1+$var2->$var3
+Disp "should display your name:"
+Disp $name
+$var1=32
+$var2=40
+$var3=$var1+$var2
+Disp "$var3 should be: 72"
 Disp $var3
-/*
-if A=0{
-	Disp "A"
-} elif B=0{
-	Disp "B"
-} elif C=0{
-	Disp "C"
-} elif D=0{
-	Disp "D"
-}
-*/
-//comments
-Input "A=",$A
-/*
-Prompt $B
-Prompt $C
-Prompt $D
-*/
-if $A=0{
+input("A=",$A)
+Disp "should disp: A=0"
+if $A==0{
 	Disp "A",$A
-	if $B=0{
+	if $B==0{
 		Disp "B",$B
 	} else{
-		if $C=0{
+		if $C==0{
 			Disp "C",$C
 		} else{
-			if D=0{
+			if $D==0{
 				Disp "D",$D
 			}
 		}

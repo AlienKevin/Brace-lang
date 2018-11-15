@@ -20,6 +20,18 @@ public class Utils {
 		return false;
 	}
 	
+	public static boolean isNewline(char c) {
+		return c == '\r' || c == '\n';
+	}
+	public static boolean isNewline(String str) {
+		for (int i = 0; i < str.length(); i++) {
+			if (!isNewline(str.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public static int substringIndexOf(String token, String str, int start) {
 		return substringIndexOf(token, str, start, str.length());
 	}

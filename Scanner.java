@@ -19,6 +19,7 @@ public class Scanner {
 			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat" });
 	private List<String> variables = new ArrayList<>();
 	private Scanner nestedScanner;
+	// functions
 	private boolean isReadingFunction = false;
 	private Map<String, String> functions = new HashMap<>();
 	private Map<String, List<String>> functionParameters = new HashMap<>();
@@ -27,6 +28,11 @@ public class Scanner {
 	private List<String> localVariables = new ArrayList<>();
 	private List<String> parameters = new ArrayList<>();
 	private Stack<Boolean> braceStack = new Stack<>();
+	// assignment operation
+	private boolean isAssignment = false;
+	private String assignmentStatement = "";
+	private String assignmentExpression = "";
+	// elif
 	private int closingBraceIndex = 0;
 	private int numberOfElif = 1;
 
@@ -64,7 +70,10 @@ public class Scanner {
 		switch (c) {
 		case '/':
 			if (match('/')) {// single line comment
-				while (peek() != '\n' && !isAtEnd()) {
+				while (!Utils.isNewline(peek()) && !isAtEnd()) {
+					advance();
+				}
+				while (Utils.isNewline(peek()) && !isAtEnd()) {
 					advance();
 				}
 			} else if (match('*')) {// multi-line comment
@@ -88,8 +97,8 @@ public class Scanner {
 			}
 			break;
 		case '\n':
-			line++;
-			// addToken("\n");
+		case '\r':
+			newLine(c);
 			break;
 		case '{':
 			updateBlock('{');
@@ -100,6 +109,12 @@ public class Scanner {
 		case '$':
 			variable();
 			break;
+		case '=':
+			if (!isAtEnd() && peek() == '=') {// equality test
+				addToken("=");
+			}
+			// assignment operation handled by variable
+			break;
 		default:
 			if (Utils.isAlpha(c)) {
 				identifier();
@@ -109,19 +124,54 @@ public class Scanner {
 		}
 	}
 
+	private void newLine(char c) {
+		line++;
+		// handle newline character(s) for different operating systems
+		if (c == '\r') {
+			if (peek() == '\n') {
+				advance();// skip over '\n'
+				addToken("\r\n");
+			} else {
+				addToken("\r");
+			}
+		} else if (c == '\n') {
+			if (peek() == '\r') {
+				advance();// skip over '\r'
+				addToken("\n\r");
+			} else {
+				addToken("\n");
+			}
+		}
+		if (isAssignment) {// assignment terminated by newline
+			isAssignment = false;
+			terminateAssignment();
+		}
+	}
+
+	private void terminateAssignment() {
+		assignmentStatement = assignmentExpression + assignmentStatement + "\n";
+		addToken(assignmentStatement);
+		assignmentExpression = "";
+		assignmentStatement = "";
+	}
+
 	private void variable() {
 		while (!isAtEnd() && Utils.isAlphaNumeric(peek())) {
 			advance();
 		}
 		String variableName = source.substring(start, current);
 		System.out.println("variableName: " + variableName);
+		if (peek() == '=' && peekNext() != '=') {// assignment operation
+			isAssignment = true;
+		}
 		if (isReadingFunction) {
 			if (!parameters.contains(variableName)) {// function's local variables
 				if (!localVariables.contains(variableName)) {
 					localVariables.add(variableName);
 				}
 				int listIndex = localVariables.indexOf(variableName) + 1;
-				addToken("LFUNC" + functions.size() + "(" + listIndex + ")");
+				// function variable scope
+				addToken("ʟF" + functions.size() + "(" + listIndex + ")");
 			} else {// parameter variables
 				addToken(variableName);
 			}
@@ -136,7 +186,8 @@ public class Scanner {
 				variables.add(variableName);
 			}
 			int listIndex = variables.indexOf(variableName) + 1;
-			return "LMAIN(" + listIndex + ")";
+			// main program variable scope
+			return "ʟM(" + listIndex + ")";
 		} else {
 			return variableName;
 		}
@@ -187,10 +238,10 @@ public class Scanner {
 			if (identifier.equals("else") || identifier.equals("elif")) {
 				// do NOT append "End"
 			} else {
-				addToken("\nEnd");
+				addToken("End");
 			}
 		} else {
-			addToken("\nEnd");
+			addToken("End");
 		}
 	}
 
@@ -377,6 +428,18 @@ public class Scanner {
 	private void addToken(String token) {
 		if (isReadingFunction) {
 			this.functionBody += token;
+		} else if (isAssignment) {
+			if (assignmentStatement.isEmpty()) {
+				assignmentStatement += "→" + token;// remove possible newline
+			} else {
+				if (Utils.isNewline(token)) {
+					// ignore newlines
+				} else {
+					assignmentExpression += token;
+				}
+			}
+			System.out.println("assignmentStatement: " + assignmentStatement);
+			System.out.println("assignmentExpression: " + assignmentExpression);
 		} else {
 			this.target += token;
 		}
@@ -405,6 +468,15 @@ public class Scanner {
 		return source.charAt(current + n);
 	}
 
+	private char peekAcrossWhitespace() {
+		char c = peek();
+		if (!isAtEnd() && Character.isWhitespace(c)) {
+			// keep peeking ahead
+			c = peek();
+		}
+		return c;
+	}
+
 	private char advance() {
 		current++;
 		return source.charAt(current - 1);
@@ -419,13 +491,16 @@ public class Scanner {
 
 	private void safeSkipLine() {
 		if (!isAtEnd()) {
-			if (lookAt(current) == '\r') {// Windows newline
+			if (peek() == '\r') {// rare newline, "\r"
 				advance();
-				if (lookAt(current) == '\n') {
+				if (peek() == '\n') {// Windows newline, "\r\n"
 					advance();
 				}
-			} else if (lookAt(current) == '\n') {// Unix and macOS newline
+			} else if (peek() == '\n') {// Unix and macOS newline, "\n"
 				advance();
+				if (peek() == '\r') {// rare newline, "\n\r"
+					advance();
+				}
 			}
 		}
 	}
