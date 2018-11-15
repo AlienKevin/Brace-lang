@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Scanner {
 	private int start = 0;
@@ -19,6 +21,7 @@ public class Scanner {
 	private Scanner nestedScanner;
 	private boolean isReadingFunction = false;
 	private Map<String, String> functions = new HashMap<>();
+	private Map<String, List<String>> functionParameters = new HashMap<>();
 	private String functionName = "";
 	private String functionBody = "";
 	private List<String> localVariables = new ArrayList<>();
@@ -80,7 +83,7 @@ public class Scanner {
 			break;
 		case '}':
 			if (!updateBlock('}')) {
-				//ignore '}' at end of function definition block
+				// ignore '}' at end of function definition block
 				closingBrace();
 			}
 			break;
@@ -123,11 +126,19 @@ public class Scanner {
 				addToken(variableName);
 			}
 		} else {
+			addToken(getVariable(variableName));
+		}
+	}
+
+	private String getVariable(String variableName) {
+		if (variableName.startsWith("$")) {
 			if (!variables.contains(variableName)) {
 				variables.add(variableName);
 			}
 			int listIndex = variables.indexOf(variableName) + 1;
-			addToken("LMAIN(" + listIndex + ")");
+			return "LMAIN(" + listIndex + ")";
+		} else {
+			return variableName;
 		}
 	}
 
@@ -154,7 +165,7 @@ public class Scanner {
 				functionBody = "";
 				localVariables.clear();
 				System.out.println("functions: " + functions);
-				safeSkipLine();//skip the empty line left by function definition
+				safeSkipLine();// skip the empty line left by function definition
 				return true;
 			}
 		}
@@ -207,28 +218,62 @@ public class Scanner {
 			default:
 				keyword(identifier);
 			}
-		} else {// other ti-basic keywords, like "getKey"
+		} else {
 			switch (identifier) {
 			case "func":
-				processFunction();
+				processFunctionDefinition();
 				break;
 			default:
-				addToken(identifier);
+				if (functions.keySet().contains(identifier)) {// function caller
+					processFunctionCall(identifier);
+				} else {
+					// other TI-Basic keywords, like "getKey"
+					addToken(identifier);
+				}
 			}
 		}
 	}
 
-	private void processFunction() {
+	private void processFunctionCall(String functionName) {
+		int openBraceIndex = Utils.substringIndexOf("(", source, current);
+		int closeBraceIndex = Utils.substringIndexOf(")", source, current);
+		String parameterList = source.substring(openBraceIndex + 1, closeBraceIndex).replace(" ", "");
+		List<String> callParameters = Arrays.asList(parameterList.split(","));
+		String functionBody = functions.get(functionName);
+		List<String> functionParameters = this.functionParameters.get(functionName);
+		for (int i = 0; i < callParameters.size(); i++) {
+			String parameter = functionParameters.get(i);
+			String argument = getVariable(callParameters.get(i));
+			System.out.println("parameter: " + parameter);
+			System.out.println("argument: " + argument);
+			Pattern parameterPattern = Pattern.compile(Pattern.quote(parameter) + "\\b");
+			System.out.println("pattern: " + parameterPattern);
+			Matcher parameterMatcher = parameterPattern.matcher(functionBody);
+			if (argument.startsWith("$")) {
+				functionBody = parameterMatcher.replaceAll("\\" + argument);
+			} else {
+				functionBody = parameterMatcher.replaceAll(argument);
+			}
+			System.out.println(functionBody);
+		}
+		while (advance() != '\n') {
+			// keep skipping function call statement
+		}
+		addToken(functionBody);
+	}
+
+	private void processFunctionDefinition() {
 		// copy-and-paste functions
 		// process function header
 		String functionHeader = source.substring(current, Utils.substringIndexOf("{", source, current)).trim();
-		int firstParenIndex = functionHeader.indexOf("(");
+		int firstBraceIndex = functionHeader.indexOf("(");
 		functionName = functionHeader.substring(0, functionHeader.indexOf("(")).trim();
-		String parameterList = functionHeader.substring(firstParenIndex);
+		String parameterList = functionHeader.substring(firstBraceIndex);
 		parameterList = parameterList.substring(1, parameterList.length() - 1);// remove "(" and ")"
 		parameterList = parameterList.replace(" ", "");
 		// System.out.println("parameterList: " + parameterList);
 		parameters = Arrays.asList(parameterList.split(","));
+		functionParameters.put(functionName, parameters);
 		// System.out.println("parameters: " + parameters);
 		// prepare for reading funcion body
 		isReadingFunction = true;
@@ -236,6 +281,7 @@ public class Scanner {
 		while (advance() != '{') {
 			// keep advancing
 		}
+		safeSkipLine(); // skip potential '\n'
 		updateBlock('{');
 	}
 

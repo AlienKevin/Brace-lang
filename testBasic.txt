@@ -1,8 +1,8 @@
-32->LMAIN(1)40->LMAIN(2)LMAIN(1)+LMAIN(2)->LMAIN(3)Disp LMAIN(3)Input "A=",LMAIN(4)If LMAIN(4)=0
-ThenDisp "A",LMAIN(4)If LMAIN(5)=0
-ThenDisp "B",LMAIN(5) ElseIf LMAIN(6)=0
-ThenDisp "C",LMAIN(6) ElseIf D=0
-ThenDisp "D",LMAIN(7)
+Input Str1,AA->LMAIN(1)32->LMAIN(2)40->LMAIN(3)LMAIN(2)+LMAIN(3)->LMAIN(4)Disp LMAIN(4)Input "A=",LMAIN(5)If LMAIN(5)=0
+ThenDisp "A",LMAIN(5)If LMAIN(6)=0
+ThenDisp "B",LMAIN(6) ElseIf LMAIN(7)=0
+ThenDisp "C",LMAIN(7) ElseIf D=0
+ThenDisp "D",LMAIN(8)
 End
 End
 End

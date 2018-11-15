@@ -1,8 +1,10 @@
 //this is a sample program
+//another line of comment
 func input($str, $var){
 	Input $str,A
 	A->$var
 }
+input(Str1, $name)
 32->$var1
 40->$var2
 $var1+$var2->$var3
