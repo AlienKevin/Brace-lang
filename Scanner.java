@@ -84,7 +84,7 @@ public class Scanner {
 			variable();
 			break;
 		default:
-			if (isAlpha(c)) {
+			if (Utils.isAlpha(c)) {
 				identifier();
 			} else {// add all other characters to target
 				addToken(Character.toString(c));
@@ -93,7 +93,7 @@ public class Scanner {
 	}
 	
 	private void variable() {
-		while (!isAtEnd() && isAlphaNumeric(peek())) {
+		while (!isAtEnd() && Utils.isAlphaNumeric(peek())) {
 			advance();
 		}
 		String variableName = source.substring(start + 1, current);
@@ -111,9 +111,9 @@ public class Scanner {
 		while (Character.isWhitespace(c = peek(n)) && !isAtEnd()) {
 			n++;
 		}
-		if (isAlpha(c)) {
+		if (Utils.isAlpha(c)) {
 			int index = current + n;
-			while (isAlpha(source.charAt(index))) {
+			while (Utils.isAlpha(source.charAt(index))) {
 				index++;
 			}
 			String identifier = source.substring(current + n, index);
@@ -136,7 +136,7 @@ public class Scanner {
 	}
 
 	private void identifier() {
-		while (isAlphaNumeric(peek())) {
+		while (Utils.isAlphaNumeric(peek())) {
 			advance();
 		}
 		String identifier = source.substring(start, current);
@@ -174,9 +174,9 @@ public class Scanner {
 				if (lookAtEnd(index)) {
 					countElif = false;
 				}
-				if (isAlpha(lookAt(index))) {
+				if (Utils.isAlpha(lookAt(index))) {
 					int identifierStart = index;
-					while (!lookAtEnd(index) && isAlpha(lookAt(index))) {
+					while (!lookAtEnd(index) && Utils.isAlpha(lookAt(index))) {
 						index++;
 					}
 					String identifier = source.substring(identifierStart, index);
@@ -243,24 +243,6 @@ public class Scanner {
 		String capitalizedKeyword = keyword.substring(0, 1).toUpperCase() + keyword.substring(1);
 		String text = source.substring(start, current).replace(keyword, capitalizedKeyword);
 		addToken(text);
-	}
-
-	private boolean isAlphaNumeric(char c) {
-		return isAlpha(c) || isDigit(c);
-	}
-
-	private boolean isDigit(char c) {
-		if (c >= '0' && c <= '9') {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean isAlpha(char c) {
-		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-			return true;
-		}
-		return false;
 	}
 
 	private void addToken(String token) {
