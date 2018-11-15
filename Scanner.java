@@ -79,8 +79,10 @@ public class Scanner {
 			string();
 			break;
 		case '}':
-			updateBlock('}');
-			closingBrace();
+			if (!updateBlock('}')) {
+				//ignore '}' at end of function definition block
+				closingBrace();
+			}
 			break;
 		case '\n':
 			line++;
@@ -111,13 +113,13 @@ public class Scanner {
 		String variableName = source.substring(start, current);
 		System.out.println("variableName: " + variableName);
 		if (isReadingFunction) {
-			if (!parameters.contains(variableName)) {//function's local variables
+			if (!parameters.contains(variableName)) {// function's local variables
 				if (!localVariables.contains(variableName)) {
 					localVariables.add(variableName);
 				}
 				int listIndex = localVariables.indexOf(variableName) + 1;
 				addToken("LFUNC" + functions.size() + "(" + listIndex + ")");
-			} else {//parameter variables
+			} else {// parameter variables
 				addToken(variableName);
 			}
 		} else {
@@ -129,21 +131,34 @@ public class Scanner {
 		}
 	}
 
-	private void updateBlock(char c) {
-		if (c == '{') {
-			braceStack.push(true);
-		} else if (c == '}') {
-			braceStack.pop();
-		}
-		if (braceStack.isEmpty()) {
-			// find the end of a block
-			if (isReadingFunction) {
+	/**
+	 * Update brace stack to find the end of a function block
+	 * 
+	 * @param c
+	 *            whether to ignore the "}" or not
+	 * @return
+	 */
+	private boolean updateBlock(char c) {
+		if (isReadingFunction) {
+			if (c == '{') {
+				braceStack.push(true);
+			} else if (c == '}') {
+				braceStack.pop();
+			}
+			if (braceStack.isEmpty()) {
+				// find the end of a block of a function
 				// terminate reading of function
 				isReadingFunction = false;
 				functions.put(functionName, functionBody);
+				// clear variables used for reading function
+				functionBody = "";
+				localVariables.clear();
 				System.out.println("functions: " + functions);
+				safeSkipLine();//skip the empty line left by function definition
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private void closingBrace() {
@@ -197,7 +212,7 @@ public class Scanner {
 			case "func":
 				processFunction();
 				break;
-			default: 
+			default:
 				addToken(identifier);
 			}
 		}
@@ -212,14 +227,14 @@ public class Scanner {
 		String parameterList = functionHeader.substring(firstParenIndex);
 		parameterList = parameterList.substring(1, parameterList.length() - 1);// remove "(" and ")"
 		parameterList = parameterList.replace(" ", "");
-//		System.out.println("parameterList: " + parameterList);
+		// System.out.println("parameterList: " + parameterList);
 		parameters = Arrays.asList(parameterList.split(","));
-//		System.out.println("parameters: " + parameters);
+		// System.out.println("parameters: " + parameters);
 		// prepare for reading funcion body
 		isReadingFunction = true;
 		// skip the function header
 		while (advance() != '{') {
-			//keep advancing
+			// keep advancing
 		}
 		updateBlock('{');
 	}
@@ -333,7 +348,7 @@ public class Scanner {
 	private char peek() {
 		return peek(0);
 	}
-	
+
 	private char peekNext() {
 		return peek(1);
 	}

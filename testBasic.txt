@@ -1,5 +1,4 @@
-
-End32->LMAIN(1)40->LMAIN(2)LMAIN(1)+LMAIN(2)->LMAIN(3)Disp LMAIN(3)Input "A=",LMAIN(4)If LMAIN(4)=0
+32->LMAIN(1)40->LMAIN(2)LMAIN(1)+LMAIN(2)->LMAIN(3)Disp LMAIN(3)Input "A=",LMAIN(4)If LMAIN(4)=0
 ThenDisp "A",LMAIN(4)If LMAIN(5)=0
 ThenDisp "B",LMAIN(5) ElseIf LMAIN(6)=0
 ThenDisp "C",LMAIN(6) ElseIf D=0
