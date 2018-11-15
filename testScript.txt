@@ -1,4 +1,8 @@
 //this is a sample program
+func input($str, $var){
+	Input $str,A
+	A->$var
+}
 32->$var1
 40->$var2
 $var1+$var2->$var3

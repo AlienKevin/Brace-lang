@@ -2,7 +2,9 @@ package basicScript;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 public class Scanner {
@@ -15,20 +17,27 @@ public class Scanner {
 			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat" });
 	private List<String> variables = new ArrayList<>();
 	private Scanner nestedScanner;
+	private boolean isReadingFunction = false;
+	private Map<String, String> functions = new HashMap<>();
+	private String functionName = "";
+	private String functionBody = "";
+	private List<String> localVariables = new ArrayList<>();
+	private List<String> parameters = new ArrayList<>();
+	private Stack<Boolean> braceStack = new Stack<>();
 	private int closingBraceIndex = 0;
 	private int numberOfElif = 1;
 
 	public Scanner(String source) {
 		setSource(source);
 	}
-	
+
 	public void setVariables(List<String> variables) {
 		this.variables.clear();
 		for (String variable : variables) {
 			this.variables.add(variable);
 		}
 	}
-	
+
 	public void setSource(String source) {
 		this.source = source;
 		this.target = "";
@@ -70,6 +79,7 @@ public class Scanner {
 			string();
 			break;
 		case '}':
+			updateBlock('}');
 			closingBrace();
 			break;
 		case '\n':
@@ -77,8 +87,10 @@ public class Scanner {
 			// addToken("\n");
 			break;
 		case '{':
+			updateBlock('{');
+			break;
 		case '\t':
-			// ignore all '{'
+			// ignore tab
 			break;
 		case '$':
 			variable();
@@ -91,18 +103,47 @@ public class Scanner {
 			}
 		}
 	}
-	
+
 	private void variable() {
 		while (!isAtEnd() && Utils.isAlphaNumeric(peek())) {
 			advance();
 		}
-		String variableName = source.substring(start + 1, current);
-		System.out.println(variableName);
-		if (!variables.contains(variableName)) {
-			variables.add(variableName);
+		String variableName = source.substring(start, current);
+		System.out.println("variableName: " + variableName);
+		if (isReadingFunction) {
+			if (!parameters.contains(variableName)) {//function's local variables
+				if (!localVariables.contains(variableName)) {
+					localVariables.add(variableName);
+				}
+				int listIndex = localVariables.indexOf(variableName) + 1;
+				addToken("LFUNC" + functions.size() + "(" + listIndex + ")");
+			} else {//parameter variables
+				addToken(variableName);
+			}
+		} else {
+			if (!variables.contains(variableName)) {
+				variables.add(variableName);
+			}
+			int listIndex = variables.indexOf(variableName) + 1;
+			addToken("LMAIN(" + listIndex + ")");
 		}
-		int listIndex = variables.indexOf(variableName) + 1;
-		addToken("L1(" + listIndex + ")");
+	}
+
+	private void updateBlock(char c) {
+		if (c == '{') {
+			braceStack.push(true);
+		} else if (c == '}') {
+			braceStack.pop();
+		}
+		if (braceStack.isEmpty()) {
+			// find the end of a block
+			if (isReadingFunction) {
+				// terminate reading of function
+				isReadingFunction = false;
+				functions.put(functionName, functionBody);
+				System.out.println("functions: " + functions);
+			}
+		}
 	}
 
 	private void closingBrace() {
@@ -152,8 +193,35 @@ public class Scanner {
 				keyword(identifier);
 			}
 		} else {// other ti-basic keywords, like "getKey"
-			addToken(identifier);
+			switch (identifier) {
+			case "func":
+				processFunction();
+				break;
+			default: 
+				addToken(identifier);
+			}
 		}
+	}
+
+	private void processFunction() {
+		// copy-and-paste functions
+		// process function header
+		String functionHeader = source.substring(current, Utils.substringIndexOf("{", source, current)).trim();
+		int firstParenIndex = functionHeader.indexOf("(");
+		functionName = functionHeader.substring(0, functionHeader.indexOf("(")).trim();
+		String parameterList = functionHeader.substring(firstParenIndex);
+		parameterList = parameterList.substring(1, parameterList.length() - 1);// remove "(" and ")"
+		parameterList = parameterList.replace(" ", "");
+//		System.out.println("parameterList: " + parameterList);
+		parameters = Arrays.asList(parameterList.split(","));
+//		System.out.println("parameters: " + parameters);
+		// prepare for reading funcion body
+		isReadingFunction = true;
+		// skip the function header
+		while (advance() != '{') {
+			//keep advancing
+		}
+		updateBlock('{');
 	}
 
 	private void processElif() {
@@ -246,7 +314,11 @@ public class Scanner {
 	}
 
 	private void addToken(String token) {
-		this.target += token;
+		if (isReadingFunction) {
+			this.functionBody += token;
+		} else {
+			this.target += token;
+		}
 	}
 
 	private boolean match(char expected) {
@@ -260,6 +332,10 @@ public class Scanner {
 
 	private char peek() {
 		return peek(0);
+	}
+	
+	private char peekNext() {
+		return peek(1);
 	}
 
 	private char peek(int n) {

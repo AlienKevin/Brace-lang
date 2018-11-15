@@ -10,6 +10,6 @@ public class ParserTester {
 		Path basic = Paths.get("src//basicScript//testBasic.txt");
 		Parser parser = new Parser(script, basic);
 		parser.parse();
-		System.out.println("parsed");
+		System.out.println("Script Parsed!");
 	}
 }

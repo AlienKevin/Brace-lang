@@ -19,5 +19,18 @@ public class Utils {
 		}
 		return false;
 	}
+	
+	public static int substringIndexOf(String token, String str, int start) {
+		return substringIndexOf(token, str, start, str.length());
+	}
 
+	public static int substringIndexOf(String token, String str, int start, int end) {
+		int tokenIndex = str.substring(start, end).indexOf(token);
+		if (tokenIndex != -1) {
+			return tokenIndex + start;
+		} else {
+			return -1;
+		}
+	}
+	
 }

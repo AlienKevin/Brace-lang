@@ -1,8 +1,9 @@
-32->L1(1)40->L1(2)L1(1)+L1(2)->L1(3)Disp L1(3)Input "A=",L1(4)If L1(4)=0
-ThenDisp "A",L1(4)If L1(5)=0
-ThenDisp "B",L1(5) ElseIf L1(6)=0
-ThenDisp "C",L1(6) ElseIf D=0
-ThenDisp "D",L1(7)
+
+End32->LMAIN(1)40->LMAIN(2)LMAIN(1)+LMAIN(2)->LMAIN(3)Disp LMAIN(3)Input "A=",LMAIN(4)If LMAIN(4)=0
+ThenDisp "A",LMAIN(4)If LMAIN(5)=0
+ThenDisp "B",LMAIN(5) ElseIf LMAIN(6)=0
+ThenDisp "C",LMAIN(6) ElseIf D=0
+ThenDisp "D",LMAIN(7)
 End
 End
 End
