@@ -160,8 +160,9 @@ public class Scanner {
 			advance();
 		}
 		String variableName = source.substring(start, current);
-		System.out.println("variableName: " + variableName);
+		// System.out.println("variableName: " + variableName);
 		if (peek() == '=' && peekNext() != '=') {// assignment operation
+			System.out.println("assignment statement found!");
 			isAssignment = true;
 		}
 		if (isReadingFunction) {
@@ -426,9 +427,7 @@ public class Scanner {
 	}
 
 	private void addToken(String token) {
-		if (isReadingFunction) {
-			this.functionBody += token;
-		} else if (isAssignment) {
+		if (isAssignment) {
 			if (assignmentStatement.isEmpty()) {
 				assignmentStatement += "→" + token;// remove possible newline
 			} else {
@@ -440,6 +439,8 @@ public class Scanner {
 			}
 			System.out.println("assignmentStatement: " + assignmentStatement);
 			System.out.println("assignmentExpression: " + assignmentExpression);
+		} else if (isReadingFunction) {
+			this.functionBody += token;
 		} else {
 			this.target += token;
 		}
