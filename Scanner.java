@@ -271,7 +271,7 @@ public class Scanner {
 				processIf();
 				break;
 			case "elif":
-				// processElif();
+				 processElif();
 				break;
 			default:
 				keyword(identifier);
@@ -348,8 +348,8 @@ public class Scanner {
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
-		String text = source.substring(start, current).replace("elif", "Else\nIf") + "\nThen";
-		addToken(text);
+		String conditionalExpression = scanConditionalExpression("elif");
+		addToken("Else\nIf" + conditionalExpression + "\nThen");
 		if (current > closingBraceIndex) {
 			boolean countElif = true;
 			closingBraceIndex = current - 1;
@@ -443,12 +443,17 @@ public class Scanner {
 			advance();
 		}
 		// always append "Then" after "if"
-		nestedScanner = new Scanner(source.substring(start + 2, current));
+		String conditionalExpression = scanConditionalExpression("if");
+		String text = "If" + conditionalExpression + "\nThen";
+		addToken(text);
+	}
+	
+	private String scanConditionalExpression(String keyword) {
+		nestedScanner = new Scanner(source.substring(start + keyword.length(), current));
 		nestedScanner.setVariables(this.variables);
 		String conditionalExpression = nestedScanner.scanTokens();
 		this.setVariables(nestedScanner.variables);
-		String text = "If" + conditionalExpression + "\nThen";
-		addToken(text);
+		return conditionalExpression;
 	}
 
 	private void keyword(String keyword) {
