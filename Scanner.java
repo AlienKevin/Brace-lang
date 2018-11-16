@@ -32,6 +32,8 @@ public class Scanner {
 	private boolean isAssignment = false;
 	private String assignmentStatement = "";
 	private String assignmentExpression = "";
+	// ti notation or not
+	private static Notation notation = Notation.SOURCE_CODER;
 	// elif
 	private int closingBraceIndex = 0;
 	private int numberOfElif = 1;
@@ -155,16 +157,20 @@ public class Scanner {
 		assignmentStatement = "";
 	}
 
+	private void startAssignment() {
+		if (peek() == '=' && peekNext() != '=') {// assignment operation
+			System.out.println("assignment statement found!");
+			isAssignment = true;
+		}
+	}
+
 	private void variable() {
 		while (!isAtEnd() && Utils.isAlphaNumeric(peek())) {
 			advance();
 		}
 		String variableName = source.substring(start, current);
 		// System.out.println("variableName: " + variableName);
-		if (peek() == '=' && peekNext() != '=') {// assignment operation
-			System.out.println("assignment statement found!");
-			isAssignment = true;
-		}
+		startAssignment();
 		if (isReadingFunction) {
 			if (!parameters.contains(variableName)) {// function's local variables
 				if (!localVariables.contains(variableName)) {
@@ -172,7 +178,7 @@ public class Scanner {
 				}
 				int listIndex = localVariables.indexOf(variableName) + 1;
 				// function variable scope
-				addToken("ʟF" + functions.size() + "(" + listIndex + ")");
+				addToken(mapSymbol("L") + "F" + functions.size() + "(" + listIndex + ")");
 			} else {// parameter variables
 				addToken(variableName);
 			}
@@ -188,7 +194,7 @@ public class Scanner {
 			}
 			int listIndex = variables.indexOf(variableName) + 1;
 			// main program variable scope
-			return "ʟM(" + listIndex + ")";
+			return mapSymbol("L") + "M(" + listIndex + ")";
 		} else {
 			return variableName;
 		}
@@ -279,7 +285,8 @@ public class Scanner {
 				if (functions.keySet().contains(identifier)) {// function caller
 					processFunctionCall(identifier);
 				} else {
-					// other TI-Basic keywords, like "getKey"
+					// other TI-Basic keywords, like "getKey", "Str1", etc.
+					startAssignment();
 					addToken(identifier);
 				}
 			}
@@ -376,6 +383,33 @@ public class Scanner {
 		}
 	}
 
+	private String mapSymbol(String symbol) {
+		switch (notation) {
+		case TI:
+			switch (symbol) {
+			case "->":
+				return "→";
+			case "L":
+				return "ʟ";
+			default:
+				return null;// can throw exception if needed
+			}
+		case SOURCE_CODER:
+			switch (symbol) {
+			case "->":
+				return "->";
+			case "L":
+				return "|L";
+			default:
+				return null;// can throw exception if needed
+			}
+		case PLAIN:
+			return symbol;
+		default:
+			return null;// can throw exception if needed
+		}
+	}
+
 	private boolean lookAtEnd(int index) {
 		if (index >= source.length()) {
 			return true;
@@ -429,7 +463,7 @@ public class Scanner {
 	private void addToken(String token) {
 		if (isAssignment) {
 			if (assignmentStatement.isEmpty()) {
-				assignmentStatement += "→" + token;// remove possible newline
+				assignmentStatement += mapSymbol("->") + token;// remove possible newline
 			} else {
 				if (Utils.isNewline(token)) {
 					// ignore newlines

@@ -1,36 +1,36 @@
-32→ʟM(1)
-65→ʟM(2)
+32->|LM(1)
+65->|LM(2)
 "What's your name?"->Str1
 Input Str1,A
-A→ʟM(3)
-ʟM(3)*2→ʟF0(1)
-ʟF0(1)→ʟM(3)
+A->|LM(3)
+|LM(3)*2->|LF0(1)
+|LF0(1)->|LM(3)
 Disp "should display your name:"
-Disp ʟM(3)
-32→ʟM(4)
-40→ʟM(2)
-ʟM(4)+ʟM(2)→ʟM(5)
+Disp |LM(3)
+32->|LM(4)
+40->|LM(2)
+|LM(4)+|LM(2)->|LM(5)
 Disp "$var3 should be: 72"
-Disp ʟM(5)
+Disp |LM(5)
 Input "A=",A
-A→ʟM(6)
-ʟM(6)*2→ʟF0(1)
-ʟF0(1)→ʟM(6)
+A->|LM(6)
+|LM(6)*2->|LF0(1)
+|LF0(1)->|LM(6)
 Disp "should disp: A=0"
-If ʟM(6)=0
+If |LM(6)=0
 Then
-Disp "A",ʟM(6)
-If ʟM(7)=0
+Disp "A",|LM(6)
+If |LM(7)=0
 Then
-Disp "B",ʟM(7)
+Disp "B",|LM(7)
  Else
-If ʟM(8)=0
+If |LM(8)=0
 Then
-Disp "C",ʟM(8)
+Disp "C",|LM(8)
  Else
-If ʟM(9)=0
+If |LM(9)=0
 Then
-Disp "D",ʟM(9)
+Disp "D",|LM(9)
 End
 End
 End

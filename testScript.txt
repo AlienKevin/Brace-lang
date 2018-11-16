@@ -7,7 +7,7 @@ func input($str, $var){
 }
 $var=32
 $var2=65
-"What's your name?"->Str1
+Str1="What's your name?"
 input(Str1, $name)
 Disp "should display your name:"
 Disp $name
