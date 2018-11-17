@@ -9,6 +9,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import basicScript.logging.Log;
+
 public class Scanner {
 	private int start = 0;
 	private int current = 0;
@@ -16,7 +18,7 @@ public class Scanner {
 	private String source;
 	private String target;
 	private static final List<String> keywords = Arrays
-			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat" });
+			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat", "true", "false"});
 	private List<String> variables = new ArrayList<>();
 	private Scanner nestedScanner;
 	// functions
@@ -39,9 +41,15 @@ public class Scanner {
 	private List<Integer> elifCount = Utils.initializeList(new ArrayList<Integer>(), MAX_ELIF_NEST_LEVEL, 0);
 	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
 	private List<Boolean> isEndOfElifs = Utils.initializeList(new ArrayList<Boolean>(), MAX_ELIF_NEST_LEVEL, false);
-
+	//logging
+	private Log log = new Log();
+	
 	public Scanner(String source) {
 		setSource(source);
+		//set up logging behavior
+		log.categorize("branching", "if", "elif", "else");
+		log.setFormLog("branching", true);
+		
 	}
 
 	public void setVariables(List<String> variables) {
@@ -208,6 +216,7 @@ public class Scanner {
 	 * @return
 	 */
 	private boolean updateBlock(char c) {
+		log.setType("function");
 		if (isReadingFunction) {
 			if (c == '{') {
 				braceStack.push(true);
@@ -222,7 +231,7 @@ public class Scanner {
 				// clear variables used for reading function
 				functionBody = "";
 				localVariables.clear();
-				System.out.println("functions: " + functions);
+				log.out("functions: " + functions);
 				skipLine();// skip the empty line left by function definition
 				return true;
 			}
@@ -259,6 +268,7 @@ public class Scanner {
 	}
 
 	private void string() {
+		log.setType("string");
 		while (peek() != '"' && !isAtEnd()) {
 			advance();
 		}
@@ -283,6 +293,12 @@ public class Scanner {
 			case "else":
 				processElse();
 				break;
+			case "true":
+				addToken("1");
+				break;
+			case "false":
+				addToken("0");
+				break;
 			default:
 				keyword(identifier);
 			}
@@ -304,6 +320,7 @@ public class Scanner {
 	}
 
 	private void processFunctionCall(String functionName) {
+		log.setType("function");
 		int openBraceIndex = Utils.substringIndexOf("(", source, current);
 		int closeBraceIndex = Utils.substringIndexOf(")", source, current);
 		String parameterList = source.substring(openBraceIndex + 1, closeBraceIndex).replace(" ", "");
@@ -313,17 +330,17 @@ public class Scanner {
 		for (int i = 0; i < callParameters.size(); i++) {
 			String parameter = functionParameters.get(i);
 			String argument = getVariable(callParameters.get(i));
-			System.out.println("parameter: " + parameter);
-			System.out.println("argument: " + argument);
+			log.out("parameter: " + parameter);
+			log.out("argument: " + argument);
 			Pattern parameterPattern = Pattern.compile(Pattern.quote(parameter) + "\\b");
-			System.out.println("pattern: " + parameterPattern);
+			log.out("pattern: " + parameterPattern);
 			Matcher parameterMatcher = parameterPattern.matcher(functionBody);
 			if (argument.startsWith("$")) {
 				functionBody = parameterMatcher.replaceAll("\\" + argument);
 			} else {
 				functionBody = parameterMatcher.replaceAll(argument);
 			}
-			System.out.println(functionBody);
+			log.out(functionBody);
 		}
 		while (advance() != '\n') {
 			// keep skipping function call statement
@@ -332,6 +349,7 @@ public class Scanner {
 	}
 
 	private void processFunctionDefinition() {
+		log.setType("function");
 		// copy-and-paste functions
 		// process function header
 		String functionHeader = source.substring(current, Utils.substringIndexOf("{", source, current)).trim();
@@ -355,6 +373,7 @@ public class Scanner {
 	}
 
 	private void processElif() {
+		log.setType("elif");
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
@@ -365,6 +384,7 @@ public class Scanner {
 	}
 
 	private void checkEndOfElif() {
+		log.setType("elif");
 		int closingBraceIndex = findMatchingBrace(current);
 		int index = closingBraceIndex + 1;
 		if (lookAtEnd(index)) {
@@ -374,8 +394,8 @@ public class Scanner {
 			while (!lookAtEnd(index) && Character.isWhitespace(lookAt(index))) {
 				index++;
 			}
-			// System.out.println("index=" + index);
-			// System.out.println("source.length()=" + source.length());
+			log.out("index=" + index);
+			log.out("source.length()=" + source.length());
 			if (Utils.isAlpha(lookAt(index))) {
 				String keyword = source.substring(index, index + 4);
 				if (keyword.equals("else") || keyword.equals("elif")) {
@@ -393,6 +413,7 @@ public class Scanner {
 	}
 
 	private void processIf() {
+		log.setType("if");
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
@@ -409,11 +430,13 @@ public class Scanner {
 	}
 
 	private void processElse() {
+		log.setType("else");
 		keyword("else");
 		isEndOfElifs.set(elifNestLevel, true);
 	}
 
 	private int findMatchingBrace(int start) {
+		log.setCategory("branching");
 		Stack<Boolean> braceStack = new Stack<>();
 		for (int i = start; i < source.length(); i++) {
 			char c = lookAt(i);
@@ -447,10 +470,11 @@ public class Scanner {
 	}
 
 	private void addToken(String token) {
-		System.out.println("isAssignment: " + isAssignment);
+		log.setCategory("main");
+		log.out("isAssignment: " + isAssignment);
 		if (isAssignment) {
 			if (!Utils.isSpace(token.charAt(0))) {
-				System.out.println("token: " + token);
+				log.out("token: " + token);
 				if (assignmentStatement.isEmpty()) {
 					assignmentStatement += mapSymbol("->") + token;// remove possible newline
 				} else {
@@ -460,8 +484,8 @@ public class Scanner {
 						assignmentExpression += token;
 					}
 				}
-				// System.out.println("assignmentStatement: " + assignmentStatement);
-				// System.out.println("assignmentExpression: " + assignmentExpression);
+				log.out("assignmentStatement: " + assignmentStatement);
+				log.out("assignmentExpression: " + assignmentExpression);
 			}
 		} else if (isReadingFunction) {
 			this.functionBody += token;

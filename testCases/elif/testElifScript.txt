@@ -5,6 +5,11 @@ func input($str, $var){
 	$doubledVar=$var*2
 	$var=$doubledVar
 }
+if $var == 1{
+	doVar()	
+} else{
+	doVarElse()
+}
 input("var=",$var)
 $var2	= 329
 if $var == 0{
