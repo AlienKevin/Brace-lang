@@ -81,7 +81,7 @@ public class Scanner {
 				}
 				safeAdvance();// skip over '*'
 				safeAdvance();// skip over '/'
-				safeSkipLine();
+				skipLine();
 			} else {// division sign
 				addToken("/");
 			}
@@ -111,6 +111,8 @@ public class Scanner {
 		case '=':
 			if (!isAtEnd() && peek() == '=') {// equality test
 				addToken("=");
+				advance();//skip over the second '='
+				skipSpaces();
 			}
 			// assignment operation handled by variable
 			break;
@@ -154,9 +156,10 @@ public class Scanner {
 		assignmentStatement = "";
 	}
 
-	private void startAssignment() {
+	private void checkAssignment() {
+		skipSpaces();
 		if (peek() == '=' && peekNext() != '=') {// assignment operation
-			System.out.println("assignment statement found!");
+			// System.out.println("assignment statement found!");
 			isAssignment = true;
 		}
 	}
@@ -167,7 +170,7 @@ public class Scanner {
 		}
 		String variableName = source.substring(start, current);
 		// System.out.println("variableName: " + variableName);
-		startAssignment();
+		checkAssignment();
 		if (isReadingFunction) {
 			if (!parameters.contains(variableName)) {// function's local variables
 				if (!localVariables.contains(variableName)) {
@@ -220,7 +223,7 @@ public class Scanner {
 				functionBody = "";
 				localVariables.clear();
 				System.out.println("functions: " + functions);
-				safeSkipLine();// skip the empty line left by function definition
+				skipLine();// skip the empty line left by function definition
 				return true;
 			}
 		}
@@ -268,7 +271,7 @@ public class Scanner {
 			advance();
 		}
 		String identifier = source.substring(start, current);
-		System.out.println("elif count: " + elifCount);
+		// System.out.println("elif count: " + elifCount);
 		if (keywords.contains(identifier)) {
 			switch (identifier) {
 			case "if":
@@ -293,7 +296,7 @@ public class Scanner {
 					processFunctionCall(identifier);
 				} else {
 					// other TI-Basic keywords, like "getKey", "Str1", etc.
-					startAssignment();
+					checkAssignment();
 					addToken(identifier);
 				}
 			}
@@ -347,7 +350,7 @@ public class Scanner {
 		while (advance() != '{') {
 			// keep advancing
 		}
-		safeSkipLine(); // skip potential '\n'
+		skipLine(); // skip potential '\n'
 		updateBlock('{');
 	}
 
@@ -360,7 +363,7 @@ public class Scanner {
 		Utils.incrementListElement(elifCount, elifNestLevel);
 		checkEndOfElif();
 	}
-	
+
 	private void checkEndOfElif() {
 		int closingBraceIndex = findMatchingBrace(current);
 		int index = closingBraceIndex + 1;
@@ -371,8 +374,8 @@ public class Scanner {
 			while (!lookAtEnd(index) && Character.isWhitespace(lookAt(index))) {
 				index++;
 			}
-			System.out.println("index=" + index);
-			System.out.println("source.length()=" + source.length());
+			// System.out.println("index=" + index);
+			// System.out.println("source.length()=" + source.length());
 			if (Utils.isAlpha(lookAt(index))) {
 				String keyword = source.substring(index, index + 4);
 				if (keyword.equals("else") || keyword.equals("elif")) {
@@ -407,7 +410,6 @@ public class Scanner {
 
 	private void processElse() {
 		keyword("else");
-		System.out.println("Else found!");
 		isEndOfElifs.set(elifNestLevel, true);
 	}
 
@@ -445,18 +447,22 @@ public class Scanner {
 	}
 
 	private void addToken(String token) {
+		System.out.println("isAssignment: " + isAssignment);
 		if (isAssignment) {
-			if (assignmentStatement.isEmpty()) {
-				assignmentStatement += mapSymbol("->") + token;// remove possible newline
-			} else {
-				if (Utils.isNewline(token)) {
-					// ignore newlines
+			if (!Utils.isSpace(token.charAt(0))) {
+				System.out.println("token: " + token);
+				if (assignmentStatement.isEmpty()) {
+					assignmentStatement += mapSymbol("->") + token;// remove possible newline
 				} else {
-					assignmentExpression += token;
+					if (Utils.isNewline(token)) {
+						// ignore newlines
+					} else {
+						assignmentExpression += token;
+					}
 				}
+				// System.out.println("assignmentStatement: " + assignmentStatement);
+				// System.out.println("assignmentExpression: " + assignmentExpression);
 			}
-			// System.out.println("assignmentStatement: " + assignmentStatement);
-			// System.out.println("assignmentExpression: " + assignmentExpression);
 		} else if (isReadingFunction) {
 			this.functionBody += token;
 		} else {
@@ -508,19 +514,23 @@ public class Scanner {
 		return '\0';
 	}
 
-	private void safeSkipLine() {
-		if (!isAtEnd()) {
-			if (peek() == '\r') {// rare newline, "\r"
+	private void skipLine() {
+		if (peek() == '\r') {// rare newline, "\r"
+			advance();
+			if (peek() == '\n') {// Windows newline, "\r\n"
 				advance();
-				if (peek() == '\n') {// Windows newline, "\r\n"
-					advance();
-				}
-			} else if (peek() == '\n') {// Unix and macOS newline, "\n"
-				advance();
-				if (peek() == '\r') {// rare newline, "\n\r"
-					advance();
-				}
 			}
+		} else if (peek() == '\n') {// Unix and macOS newline, "\n"
+			advance();
+			if (peek() == '\r') {// rare newline, "\n\r"
+				advance();
+			}
+		}
+	}
+
+	private void skipSpaces() {
+		while (Utils.isSpace(peek())) {
+			advance();
 		}
 	}
 

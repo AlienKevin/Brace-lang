@@ -34,6 +34,15 @@ public class Utils {
 		return true;
 	}
 	
+	/**
+	 * IMPORTANT: may need to expand the definition of space!!!
+	 * @param c
+	 * @return
+	 */
+	public static boolean isSpace(char c) {
+		return c == '\t' || c == ' ';
+	}
+	
 	public static void incrementListElement(List<Integer> list, int index) {
 		int value = list.get(index);
 		list.set(index, value + 1);

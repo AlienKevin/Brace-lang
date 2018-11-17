@@ -1,21 +1,30 @@
-if $var==0{
-	do0()
+func input($str, $var){
+	Input $str,A
+	$var=A
+	//local variables
+	$doubledVar=$var*2
+	$var=$doubledVar
+}
+input("var=",$var)
+$var2	= 329
+if $var == 0{
+	Disp "0"
 } elif $var==1{
-	do1()
+	Disp "1"
 	if $var2==1{
-		doVar2()
+		Disp "nested level 2"
 	} elif $var2==0{
-		undoVar2()
+		Disp "nested level 2"
 	} elif $var3==0{
-		doVar3()
+		Disp "nested level 2"
 		if $var4==0{
-			doVar4()
+			Disp "nested level 3"
 		}
 	} else{
-		doNestedElse()
+		Disp "nested level 2"
 	}
 } elif $var==2{
-	do2()
+	Disp "2"
 } elif $var==3{
-	do3()
+	Disp "3"
 }
