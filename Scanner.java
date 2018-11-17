@@ -48,8 +48,6 @@ public class Scanner {
 		setSource(source);
 		//set up logging behavior
 		log.categorize("branching", "if", "elif", "else");
-		log.setFormLog("branching", true);
-		
 	}
 
 	public void setVariables(List<String> variables) {
@@ -158,18 +156,22 @@ public class Scanner {
 	}
 
 	private void terminateAssignment() {
+		log.setType("assignment");
 		assignmentStatement = assignmentExpression + assignmentStatement + "\n";
 		addToken(assignmentStatement);
 		assignmentExpression = "";
 		assignmentStatement = "";
+		log.reset();
 	}
 
 	private void checkAssignment() {
+		log.setType("assignment");
 		skipSpaces();
 		if (peek() == '=' && peekNext() != '=') {// assignment operation
-			// System.out.println("assignment statement found!");
+			log.out("assignment statement found!");
 			isAssignment = true;
 		}
+		log.reset();
 	}
 
 	private void variable() {
@@ -233,9 +235,11 @@ public class Scanner {
 				localVariables.clear();
 				log.out("functions: " + functions);
 				skipLine();// skip the empty line left by function definition
+				log.reset();
 				return true;
 			}
 		}
+		log.reset();
 		return false;
 	}
 
@@ -274,6 +278,7 @@ public class Scanner {
 		}
 		advance();// include the closing '"'
 		addToken(source.substring(start, current));
+		log.reset();
 	}
 
 	private void identifier() {
@@ -346,6 +351,7 @@ public class Scanner {
 			// keep skipping function call statement
 		}
 		addToken(functionBody);
+		log.reset();
 	}
 
 	private void processFunctionDefinition() {
@@ -370,6 +376,7 @@ public class Scanner {
 		}
 		skipLine(); // skip potential '\n'
 		updateBlock('{');
+		log.reset();
 	}
 
 	private void processElif() {
@@ -381,6 +388,7 @@ public class Scanner {
 		addToken("Else\nIf" + conditionalExpression + "\nThen");
 		Utils.incrementListElement(elifCount, elifNestLevel);
 		checkEndOfElif();
+		log.reset();
 	}
 
 	private void checkEndOfElif() {
@@ -410,6 +418,7 @@ public class Scanner {
 				isEndOfElifs.set(elifNestLevel, true);
 			}
 		}
+		log.reset();
 	}
 
 	private void processIf() {
@@ -427,12 +436,14 @@ public class Scanner {
 			Utils.clearListElement(elifCount, elifNestLevel);
 		}
 		checkEndOfElif();
+		log.reset();
 	}
 
 	private void processElse() {
 		log.setType("else");
 		keyword("else");
 		isEndOfElifs.set(elifNestLevel, true);
+		log.reset();
 	}
 
 	private int findMatchingBrace(int start) {
@@ -446,9 +457,11 @@ public class Scanner {
 				braceStack.pop();
 			}
 			if (braceStack.isEmpty()) {
+				log.reset();
 				return i;
 			}
 		}
+		log.reset();
 		return -1;
 	}
 
@@ -470,7 +483,7 @@ public class Scanner {
 	}
 
 	private void addToken(String token) {
-		log.setCategory("main");
+		log.setType("assignment");
 		log.out("isAssignment: " + isAssignment);
 		if (isAssignment) {
 			if (!Utils.isSpace(token.charAt(0))) {
@@ -492,6 +505,7 @@ public class Scanner {
 		} else {
 			this.target += token;
 		}
+		log.reset();
 	}
 
 	private boolean match(char expected) {
