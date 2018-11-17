@@ -1,0 +1,11 @@
+if $var==0{
+	do0()
+} elif $var==1{
+	do1()
+} elif $var==2{
+	do2()
+} elif $var==3{
+	do3()
+} else{
+	doElse()
+}

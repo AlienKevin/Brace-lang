@@ -1,0 +1,26 @@
+If |LM(1)=0
+Then
+do0()
+ Else
+If |LM(1)=1
+Then
+do1()
+
+End
+End
+End Else
+If |LM(1)=2
+Then
+do2()
+
+End
+End
+End
+End
+End Else
+If |LM(1)=3
+Then
+do3()
+ Else
+doElse()
+End
