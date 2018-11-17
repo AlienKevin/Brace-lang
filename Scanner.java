@@ -343,6 +343,23 @@ public class Scanner {
 		safeSkipLine(); // skip potential '\n'
 		updateBlock('{');
 	}
+	
+	private int findClosingBrace(final int startIndex) {
+		Stack<Boolean> braceStack = new Stack<>();
+		int currentIndex = startIndex;
+		// System.out.println(lookAt(currentIndex));
+		while (!braceStack.isEmpty() || currentIndex == startIndex) {
+			char c = lookAt(currentIndex);
+			if (c == '{') {
+				braceStack.push(true);
+			} else if (c == '}') {
+				braceStack.pop();
+			}
+			currentIndex++;
+			System.out.println("currentIndex: " + currentIndex);
+		}
+		return currentIndex - 1;
+	}
 
 	private void processElif() {
 		while (peek() != '{' && !isAtEnd()) {
@@ -351,16 +368,17 @@ public class Scanner {
 		String conditionalExpression = scanConditionalExpression("elif");
 		addToken("Else\nIf" + conditionalExpression + "\nThen");
 		if (current > closingBraceIndex) {
-			boolean countElif = true;
-			closingBraceIndex = current - 1;
-			while (countElif) {
-				closingBraceIndex = findClosingBrace(closingBraceIndex + 1);
+			closingBraceIndex = current-1;
+			while (true) {
+				closingBraceIndex = findClosingBrace(closingBraceIndex+1);
+				System.out.println("closingBraceIndex content: " + lookAt(closingBraceIndex));
+				System.out.println("closingBraceIndex: " + closingBraceIndex);
 				int index = closingBraceIndex + 1;
 				while (!lookAtEnd(index) && Character.isWhitespace(lookAt(index))) {
 					index++;
 				}
 				if (lookAtEnd(index)) {
-					countElif = false;
+					break;
 				}
 				if (Utils.isAlpha(lookAt(index))) {
 					int identifierStart = index;
@@ -368,17 +386,16 @@ public class Scanner {
 						index++;
 					}
 					String identifier = source.substring(identifierStart, index);
-					System.out.println(identifier);
+					System.out.println("identifier: " + identifier);
 					if (identifier.equals("elif")) {
 						numberOfElif++;
 					} else {
-						countElif = false;
-						numberOfElif = 1;
+						break;
 					}
 				} else {
-					countElif = false;
-					numberOfElif = 1;
+					break;
 				}
+				System.out.println("numberOfElif: " + numberOfElif);
 			}
 		}
 	}
@@ -421,23 +438,6 @@ public class Scanner {
 		return source.charAt(index);
 	}
 
-	private int findClosingBrace(final int startIndex) {
-		Stack<Boolean> braceStack = new Stack<>();
-		int currentIndex = startIndex;
-		// System.out.println(lookAt(currentIndex));
-		while (!braceStack.isEmpty() || currentIndex == startIndex) {
-			char c = source.charAt(currentIndex);
-			if (c == '{') {
-				braceStack.push(true);
-			} else if (c == '}') {
-				braceStack.pop();
-			}
-			currentIndex++;
-		}
-		// System.out.println(lookAt(currentIndex-1));
-		return currentIndex - 1;
-	}
-
 	private void processIf() {
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
@@ -476,8 +476,8 @@ public class Scanner {
 					assignmentExpression += token;
 				}
 			}
-			System.out.println("assignmentStatement: " + assignmentStatement);
-			System.out.println("assignmentExpression: " + assignmentExpression);
+//			System.out.println("assignmentStatement: " + assignmentStatement);
+//			System.out.println("assignmentExpression: " + assignmentExpression);
 		} else if (isReadingFunction) {
 			this.functionBody += token;
 		} else {

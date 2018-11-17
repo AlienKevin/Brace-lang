@@ -5,13 +5,6 @@ func input($str, $var){
 	$doubledVar=$var*2
 	$var=$doubledVar
 }
-if $var==3{
-	
-} elif $var==4{
-	
-} elif $var==5{
-	
-}
 $var=32
 $var2=65
 Str1="What's your name?"
