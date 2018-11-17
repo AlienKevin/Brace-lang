@@ -9,7 +9,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import basicScript.logging.Log;
+import logging.Log;
 
 public class Scanner {
 	private int start = 0;
