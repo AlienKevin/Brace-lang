@@ -35,8 +35,8 @@ public class Scanner {
 	// ti notation or not
 	private static Notation notation = Notation.SOURCE_CODER;
 	// elif
-	private int closingBraceIndex = 0;
-	private int numberOfElif = 1;
+	private int elifCount = 0;
+	private boolean isEndOfElifs = false;
 
 	public Scanner(String source) {
 		setSource(source);
@@ -64,11 +64,6 @@ public class Scanner {
 
 	private void scanToken() {
 		char c = advance();
-		if (current == closingBraceIndex) {
-			for (int i = 0; i < numberOfElif; i++) {
-				addToken("\nEnd");
-			}
-		}
 		switch (c) {
 		case '/':
 			if (match('/')) {// single line comment
@@ -250,6 +245,11 @@ public class Scanner {
 		} else {
 			addToken("End");
 		}
+		if (isEndOfElifs) {
+			for (int i = 0; i < elifCount; i++) {
+				addToken("\nEnd");
+			}
+		}
 	}
 
 	private void string() {
@@ -265,6 +265,7 @@ public class Scanner {
 			advance();
 		}
 		String identifier = source.substring(start, current);
+		System.out.println("elif count: " + elifCount);
 		if (keywords.contains(identifier)) {
 			switch (identifier) {
 			case "if":
@@ -272,6 +273,9 @@ public class Scanner {
 				break;
 			case "elif":
 				 processElif();
+				break;
+			case "else":
+				processElse();
 				break;
 			default:
 				keyword(identifier);
@@ -343,7 +347,7 @@ public class Scanner {
 		safeSkipLine(); // skip potential '\n'
 		updateBlock('{');
 	}
-	
+	/*
 	private int findClosingBrace(final int startIndex) {
 		Stack<Boolean> braceStack = new Stack<>();
 		int currentIndex = startIndex;
@@ -360,82 +364,15 @@ public class Scanner {
 		}
 		return currentIndex - 1;
 	}
-
+	*/
+	
 	private void processElif() {
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
 		String conditionalExpression = scanConditionalExpression("elif");
 		addToken("Else\nIf" + conditionalExpression + "\nThen");
-		if (current > closingBraceIndex) {
-			closingBraceIndex = current-1;
-			while (true) {
-				closingBraceIndex = findClosingBrace(closingBraceIndex+1);
-				System.out.println("closingBraceIndex content: " + lookAt(closingBraceIndex));
-				System.out.println("closingBraceIndex: " + closingBraceIndex);
-				int index = closingBraceIndex + 1;
-				while (!lookAtEnd(index) && Character.isWhitespace(lookAt(index))) {
-					index++;
-				}
-				if (lookAtEnd(index)) {
-					break;
-				}
-				if (Utils.isAlpha(lookAt(index))) {
-					int identifierStart = index;
-					while (!lookAtEnd(index) && Utils.isAlpha(lookAt(index))) {
-						index++;
-					}
-					String identifier = source.substring(identifierStart, index);
-					System.out.println("identifier: " + identifier);
-					if (identifier.equals("elif")) {
-						numberOfElif++;
-					} else {
-						break;
-					}
-				} else {
-					break;
-				}
-				System.out.println("numberOfElif: " + numberOfElif);
-			}
-		}
-	}
-
-	private String mapSymbol(String symbol) {
-		switch (notation) {
-		case TI:
-			switch (symbol) {
-			case "->":
-				return "→";
-			case "L":
-				return "ʟ";
-			default:
-				return null;// can throw exception if needed
-			}
-		case SOURCE_CODER:
-			switch (symbol) {
-			case "->":
-				return "->";
-			case "L":
-				return "|L";
-			default:
-				return null;// can throw exception if needed
-			}
-		case PLAIN:
-			return symbol;
-		default:
-			return null;// can throw exception if needed
-		}
-	}
-
-	private boolean lookAtEnd(int index) {
-		if (index >= source.length()) {
-			return true;
-		}
-		return false;
-	}
-
-	private char lookAt(int index) {
-		return source.charAt(index);
+		elifCount++;
 	}
 
 	private void processIf() {
@@ -446,6 +383,13 @@ public class Scanner {
 		String conditionalExpression = scanConditionalExpression("if");
 		String text = "If" + conditionalExpression + "\nThen";
 		addToken(text);
+		//restart the elif count
+		elifCount = 0;
+	}
+	
+	private void processElse() {
+		keyword("else");
+		isEndOfElifs = true;
 	}
 	
 	private String scanConditionalExpression(String keyword) {
@@ -550,6 +494,44 @@ public class Scanner {
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean lookAtEnd(int index) {
+		if (index >= source.length()) {
+			return true;
+		}
+		return false;
+	}
+
+	private char lookAt(int index) {
+		return source.charAt(index);
+	}
+	
+	private String mapSymbol(String symbol) {
+		switch (notation) {
+		case TI:
+			switch (symbol) {
+			case "->":
+				return "→";
+			case "L":
+				return "ʟ";
+			default:
+				return null;// can throw exception if needed
+			}
+		case SOURCE_CODER:
+			switch (symbol) {
+			case "->":
+				return "->";
+			case "L":
+				return "|L";
+			default:
+				return null;// can throw exception if needed
+			}
+		case PLAIN:
+			return symbol;
+		default:
+			return null;// can throw exception if needed
+		}
 	}
 
 }

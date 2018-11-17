@@ -14,11 +14,11 @@ public class ParserTester {
 		System.out.println("Script Parsed!");
 	}
 	private static void general() {
-		script = Paths.get("src//testCases//general//testGeneralScript.txt");
-		basic = Paths.get("src//testCases//general//testGeneralBasic.txt");
+		script = Paths.get("src//basicScript//testCases//general//testGeneralScript.txt");
+		basic = Paths.get("src//basicScript//testCases//general//testGeneralBasic.txt");
 	}
 	private static void elif() {
-		script = Paths.get("src//testCases//elif//testElifScript.txt");
-		basic = Paths.get("src//testCases//elif//testElifBasic.txt");
+		script = Paths.get("src//basicScript//testCases//elif//testElifScript.txt");
+		basic = Paths.get("src//basicScript//testCases//elif//testElifBasic.txt");
 	}
 }
