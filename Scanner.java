@@ -35,8 +35,10 @@ public class Scanner {
 	// ti notation or not
 	private static Notation notation = Notation.SOURCE_CODER;
 	// elif
-	private int elifCount = 0;
-	private boolean isEndOfElifs = false;
+	private List<Integer> elifCount = Arrays.asList(new Integer[]{0, 0, 0, 0, 0, 0});
+	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
+	private List<Boolean> isEndOfElifs = Arrays.asList(
+			new Boolean[]{false, false, false, false, false, false});
 
 	public Scanner(String source) {
 		setSource(source);
@@ -245,10 +247,11 @@ public class Scanner {
 		} else {
 			addToken("End");
 		}
-		if (isEndOfElifs) {
-			for (int i = 0; i < elifCount; i++) {
+		if (Utils.getListElement(isEndOfElifs, elifNestLevel) == true) {
+			for (int i = 0; i < elifCount.get(elifNestLevel); i++) {
 				addToken("\nEnd");
 			}
+			elifNestLevel--;
 		}
 	}
 
@@ -272,7 +275,7 @@ public class Scanner {
 				processIf();
 				break;
 			case "elif":
-				 processElif();
+				processElif();
 				break;
 			case "else":
 				processElse();
@@ -347,32 +350,14 @@ public class Scanner {
 		safeSkipLine(); // skip potential '\n'
 		updateBlock('{');
 	}
-	/*
-	private int findClosingBrace(final int startIndex) {
-		Stack<Boolean> braceStack = new Stack<>();
-		int currentIndex = startIndex;
-		// System.out.println(lookAt(currentIndex));
-		while (!braceStack.isEmpty() || currentIndex == startIndex) {
-			char c = lookAt(currentIndex);
-			if (c == '{') {
-				braceStack.push(true);
-			} else if (c == '}') {
-				braceStack.pop();
-			}
-			currentIndex++;
-			System.out.println("currentIndex: " + currentIndex);
-		}
-		return currentIndex - 1;
-	}
-	*/
-	
+
 	private void processElif() {
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
 		String conditionalExpression = scanConditionalExpression("elif");
 		addToken("Else\nIf" + conditionalExpression + "\nThen");
-		elifCount++;
+		Utils.incrementListElement(elifCount, elifNestLevel);
 	}
 
 	private void processIf() {
@@ -383,15 +368,19 @@ public class Scanner {
 		String conditionalExpression = scanConditionalExpression("if");
 		String text = "If" + conditionalExpression + "\nThen";
 		addToken(text);
-		//restart the elif count
-		elifCount = 0;
+		// restart the elif count
+		elifNestLevel++;
+		if (elifCount.size() >= (elifNestLevel + 1)) {
+			Utils.clearListElement(elifCount, elifNestLevel);
+		}
 	}
-	
+
 	private void processElse() {
 		keyword("else");
-		isEndOfElifs = true;
+		System.out.println("Else found!");
+		isEndOfElifs.set(elifNestLevel, true);
 	}
-	
+
 	private String scanConditionalExpression(String keyword) {
 		nestedScanner = new Scanner(source.substring(start + keyword.length(), current));
 		nestedScanner.setVariables(this.variables);
@@ -420,8 +409,8 @@ public class Scanner {
 					assignmentExpression += token;
 				}
 			}
-//			System.out.println("assignmentStatement: " + assignmentStatement);
-//			System.out.println("assignmentExpression: " + assignmentExpression);
+			// System.out.println("assignmentStatement: " + assignmentStatement);
+			// System.out.println("assignmentExpression: " + assignmentExpression);
 		} else if (isReadingFunction) {
 			this.functionBody += token;
 		} else {
@@ -495,7 +484,7 @@ public class Scanner {
 		}
 		return false;
 	}
-	
+
 	private boolean lookAtEnd(int index) {
 		if (index >= source.length()) {
 			return true;
@@ -506,7 +495,7 @@ public class Scanner {
 	private char lookAt(int index) {
 		return source.charAt(index);
 	}
-	
+
 	private String mapSymbol(String symbol) {
 		switch (notation) {
 		case TI:

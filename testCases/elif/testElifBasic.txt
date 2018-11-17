@@ -1,20 +1,27 @@
 If |LM(1)=0
 Then
-do0()
  Else
 If |LM(1)=1
 Then
-do1()
+If (|LM(2)=1)
+Then
+ Else
+If (|LM(2)=0)
+Then
+ Else
+If (|LM(3)=0)
+Then
+ Else
+End
+End
+End
  Else
 If |LM(1)=2
 Then
-do2()
  Else
 If |LM(1)=3
 Then
-do3()
  Else
-doElse()
 End
 End
 End

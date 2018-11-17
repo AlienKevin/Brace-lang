@@ -1,5 +1,7 @@
 package basicScript;
 
+import java.util.List;
+
 public class Utils {
 
 	public static boolean isAlphaNumeric(char c) {
@@ -30,6 +32,22 @@ public class Utils {
 			}
 		}
 		return true;
+	}
+	
+	public static void incrementListElement(List<Integer> list, int index) {
+		int value = list.get(index);
+		list.set(index, value + 1);
+	}
+	
+	public static void clearListElement(List<Integer> list, int index) {
+		list.set(index, 0);
+	}
+	
+	public static <T> T getListElement(List<T> list, int index) {
+		if (list.size() < index + 1) {
+			return null;
+		}
+		return list.get(index);
 	}
 	
 	public static int substringIndexOf(String token, String str, int start) {
