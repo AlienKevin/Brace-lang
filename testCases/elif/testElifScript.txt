@@ -1,20 +1,21 @@
 if $var==0{
-	//do0()
+	do0()
 } elif $var==1{
-	//do1()
-	if ($var2==1){
-		//doVar2()
-	} elif ($var2==0){
-		//undoVar2()
-	} elif ($var3==0){
-		//doVar3()
+	do1()
+	if $var2==1{
+		doVar2()
+	} elif $var2==0{
+		undoVar2()
+	} elif $var3==0{
+		doVar3()
+		if $var4==0{
+			doVar4()
+		}
 	} else{
-		//doNestedElse()
+		doNestedElse()
 	}
 } elif $var==2{
-	//do2()
+	do2()
 } elif $var==3{
-	//do3()
-} else{
-	//doElse()
+	do3()
 }

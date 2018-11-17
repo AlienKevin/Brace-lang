@@ -35,10 +35,10 @@ public class Scanner {
 	// ti notation or not
 	private static Notation notation = Notation.SOURCE_CODER;
 	// elif
-	private List<Integer> elifCount = Arrays.asList(new Integer[]{0, 0, 0, 0, 0, 0});
+	private static final int MAX_ELIF_NEST_LEVEL = 10;// the maximum level of nesting for "elif"s
+	private List<Integer> elifCount = Utils.initializeList(new ArrayList<Integer>(), MAX_ELIF_NEST_LEVEL, 0);
 	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
-	private List<Boolean> isEndOfElifs = Arrays.asList(
-			new Boolean[]{false, false, false, false, false, false});
+	private List<Boolean> isEndOfElifs = Utils.initializeList(new ArrayList<Boolean>(), MAX_ELIF_NEST_LEVEL, false);
 
 	public Scanner(String source) {
 		setSource(source);
@@ -358,6 +358,35 @@ public class Scanner {
 		String conditionalExpression = scanConditionalExpression("elif");
 		addToken("Else\nIf" + conditionalExpression + "\nThen");
 		Utils.incrementListElement(elifCount, elifNestLevel);
+		checkEndOfElif();
+	}
+	
+	private void checkEndOfElif() {
+		int closingBraceIndex = findMatchingBrace(current);
+		int index = closingBraceIndex + 1;
+		if (lookAtEnd(index)) {
+			// This elif statement is the last in the chain
+			isEndOfElifs.set(elifNestLevel, true);
+		} else {
+			while (!lookAtEnd(index) && Character.isWhitespace(lookAt(index))) {
+				index++;
+			}
+			System.out.println("index=" + index);
+			System.out.println("source.length()=" + source.length());
+			if (Utils.isAlpha(lookAt(index))) {
+				String keyword = source.substring(index, index + 4);
+				if (keyword.equals("else") || keyword.equals("elif")) {
+					// This elif statement is not the last in the chain
+					// Keep looking for more "elif" or "else"
+				} else {
+					// This elif statement is the last in the chain
+					isEndOfElifs.set(elifNestLevel, true);
+				}
+			} else {
+				// This elif statement is the last in the chain
+				isEndOfElifs.set(elifNestLevel, true);
+			}
+		}
 	}
 
 	private void processIf() {
@@ -373,12 +402,29 @@ public class Scanner {
 		if (elifCount.size() >= (elifNestLevel + 1)) {
 			Utils.clearListElement(elifCount, elifNestLevel);
 		}
+		checkEndOfElif();
 	}
 
 	private void processElse() {
 		keyword("else");
 		System.out.println("Else found!");
 		isEndOfElifs.set(elifNestLevel, true);
+	}
+
+	private int findMatchingBrace(int start) {
+		Stack<Boolean> braceStack = new Stack<>();
+		for (int i = start; i < source.length(); i++) {
+			char c = lookAt(i);
+			if (c == '{') {
+				braceStack.push(true);
+			} else if (c == '}') {
+				braceStack.pop();
+			}
+			if (braceStack.isEmpty()) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private String scanConditionalExpression(String keyword) {

@@ -50,6 +50,20 @@ public class Utils {
 		return list.get(index);
 	}
 	
+	/**
+	 * Initialize a list with value, if the value is an object reference,
+	 * the same object reference will be added to all elements of the list
+	 * @param list the list to initialize
+	 * @param size the size to initialize into
+	 * @param value the default value to fill
+	 */
+	public static <T> List<T> initializeList(List<T> list, int size, T value) {
+		for (int i = 0; i < size; i++) {
+			list.add(value);
+		}
+		return list;
+	}
+	
 	public static int substringIndexOf(String token, String str, int start) {
 		return substringIndexOf(token, str, start, str.length());
 	}
