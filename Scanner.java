@@ -9,7 +9,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import logging.Log;
+import logging.JSimpleLog;
 
 public class Scanner {
 	private int start = 0;
@@ -42,12 +42,14 @@ public class Scanner {
 	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
 	private List<Boolean> isEndOfElifs = Utils.initializeList(new ArrayList<Boolean>(), MAX_ELIF_NEST_LEVEL, false);
 	//logging
-	private Log log = new Log();
+	private JSimpleLog log = new JSimpleLog();
 	
 	public Scanner(String source) {
 		setSource(source);
 		//set up logging behavior
 		log.categorize("branching", "if", "elif", "else");
+		log.setFormLog("branching", true);
+		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 	}
 
 	public void setVariables(List<String> variables) {
@@ -267,7 +269,10 @@ public class Scanner {
 			for (int i = 0; i < elifCount.get(elifNestLevel); i++) {
 				addToken("\nEnd");
 			}
-			elifNestLevel--;
+			if (elifNestLevel > 0) {// only decrement nest level
+									// if the statement is nested
+				elifNestLevel--;
+			}
 		}
 	}
 
@@ -386,6 +391,7 @@ public class Scanner {
 		}
 		String conditionalExpression = scanConditionalExpression("elif");
 		addToken("Else\nIf" + conditionalExpression + "\nThen");
+		log.out("elifNestLevel: " + elifNestLevel);
 		Utils.incrementListElement(elifCount, elifNestLevel);
 		checkEndOfElif();
 		log.reset();
@@ -393,6 +399,7 @@ public class Scanner {
 
 	private void checkEndOfElif() {
 		log.setType("elif");
+		log.off();
 		int closingBraceIndex = findMatchingBrace(current);
 		int index = closingBraceIndex + 1;
 		if (lookAtEnd(index)) {
@@ -418,6 +425,7 @@ public class Scanner {
 				isEndOfElifs.set(elifNestLevel, true);
 			}
 		}
+		log.on();
 		log.reset();
 	}
 
@@ -435,12 +443,14 @@ public class Scanner {
 		if (elifCount.size() >= (elifNestLevel + 1)) {
 			Utils.clearListElement(elifCount, elifNestLevel);
 		}
+		log.out("elifNestLevel: " + elifNestLevel);
 		checkEndOfElif();
 		log.reset();
 	}
 
 	private void processElse() {
 		log.setType("else");
+		log.out("elifNestLevel: " + elifNestLevel);
 		keyword("else");
 		isEndOfElifs.set(elifNestLevel, true);
 		log.reset();

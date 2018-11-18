@@ -5,13 +5,13 @@ func input($str, $var){
 	$doubledVar=$var*2
 	$var=$doubledVar
 }
-if $var == 1{
-	doVar()	
-} else{
-	doVarElse()
-}
 input("var=",$var)
 $var2	= 329
+if $var == 1{
+	Disp "1" 
+} else{
+	Disp "0"
+}
 if $var == 0{
 	Disp "0"
 } elif $var==1{

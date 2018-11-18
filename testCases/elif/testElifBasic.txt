@@ -3,6 +3,12 @@ A->|LM(1)
 |LM(1)*2->|LF0(1)
 |LF0(1)->|LM(1)
 329->|LM(2)
+If |LM(1)=1
+Then
+Disp"1" 
+ Else
+Disp"0"
+End
 If |LM(1)=0
 Then
 Disp"0"
