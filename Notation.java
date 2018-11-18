@@ -1,4 +1,4 @@
-package basicScript;
+package brace;
 
 public enum Notation {
 	TI,//TI's native notation with special symbols like "→"

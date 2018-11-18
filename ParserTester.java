@@ -1,4 +1,4 @@
-package basicScript;
+package brace;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,11 +14,11 @@ public class ParserTester {
 		System.out.println("Script Parsed!");
 	}
 	private static void general() {
-		script = Paths.get("src//basicScript//testCases//general//testGeneralScript.txt");
-		basic = Paths.get("src//basicScript//testCases//general//testGeneralBasic.txt");
+		script = Paths.get("src//brace//testCases//general//testGeneralScript.txt");
+		basic = Paths.get("src//brace//testCases//general//testGeneralBasic.txt");
 	}
 	private static void elif() {
-		script = Paths.get("src//basicScript//testCases//elif//testElifScript.txt");
-		basic = Paths.get("src//basicScript//testCases//elif//testElifBasic.txt");
+		script = Paths.get("src//brace//testCases//elif//testElifScript.txt");
+		basic = Paths.get("src//brace//testCases//elif//testElifBasic.txt");
 	}
 }

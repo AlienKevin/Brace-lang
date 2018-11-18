@@ -14,7 +14,7 @@ if $var == 1{
 }
 if $var == 0{
 	Disp "0"
-} elif $var==1{
+} elif $var == 1{
 	Disp "1"
 	if $var2==1{
 		Disp "nested level 2"

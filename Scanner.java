@@ -1,4 +1,4 @@
-package basicScript;
+package brace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +11,12 @@ import java.util.regex.Pattern;
 
 import logging.JSimpleLog;
 
+/**
+ * Scan the script character by character,
+ * based upon the Scanner class in <i>Crafting Interpreter</i> by Bob Nystrom
+ * @author Kevin Li
+ *
+ */
 public class Scanner {
 	private int start = 0;
 	private int current = 0;
