@@ -431,7 +431,6 @@ public class Scanner {
 
 	private void checkEndOfElif() {
 		log.setType("elif");
-		log.off();
 		int closingBraceIndex = findMatchingBrace(current);
 		int index = closingBraceIndex + 1;
 		if (lookAtEnd(index)) {
@@ -457,7 +456,6 @@ public class Scanner {
 				isEndOfElifs.set(elifNestLevel, true);
 			}
 		}
-		log.on();
 		log.reset();
 	}
 
