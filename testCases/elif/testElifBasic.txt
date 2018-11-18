@@ -5,7 +5,8 @@ A->|LM(1)
 329->|LM(2)
 If 0 or 1
 Then
-Disp"1" 
+Disp"1"
+PromptA
  Else
 Disp"0"
 End
