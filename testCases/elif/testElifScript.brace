@@ -7,8 +7,8 @@ func input($str, $var){
 }
 input("var=",$var)
 $var2	= 329
-if $var == 1{
-	Disp "1" 
+if false || true{
+	Disp "1"
 } else{
 	Disp "0"
 }
