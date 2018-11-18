@@ -54,7 +54,8 @@ public class Scanner {
 		setSource(source);
 		//set up logging behavior
 		log.categorize("branching", "if", "elif", "else");
-		log.setFormLog("branching", true);
+		log.setFormLog("branching", false);
+		log.setFormLog("identifier", true);
 		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 	}
 
@@ -200,8 +201,8 @@ public class Scanner {
 
 	private void checkAssignment() {
 		log.setType("assignment");
-		skipSpaces();
-		if (peek() == '=' && peekNext() != '=') {// assignment operation
+		int index = lookAcrossSpaces(current);
+		if (lookAt(index) == '=' && lookAt(index+1) != '=') {// assignment operation
 			log.out("assignment statement found!");
 			isAssignment = true;
 		}
@@ -229,6 +230,7 @@ public class Scanner {
 		} else {
 			addToken(getVariable(variableName));
 		}
+		skipSpaces();//skip spaces after variable name
 	}
 
 	private String getVariable(String variableName) {
@@ -319,6 +321,7 @@ public class Scanner {
 	}
 
 	private void identifier() {
+		log.setType("identifier");
 		while (Utils.isAlphaNumeric(peek())) {
 			advance();
 		}
@@ -354,11 +357,13 @@ public class Scanner {
 					processFunctionCall(identifier);
 				} else {
 					// other TI-Basic keywords, like "getKey", "Str1", etc.
+					log.out("identifier: " + identifier);
 					checkAssignment();
 					addToken(identifier);
 				}
 			}
 		}
+		log.reset();
 	}
 
 	private void processFunctionCall(String functionName) {
@@ -571,9 +576,9 @@ public class Scanner {
 		return source.charAt(current + n);
 	}
 
-	private char peekAcrossWhitespace() {
+	private char peekAcrossSpaces() {
 		char c = peek();
-		if (!isAtEnd() && Character.isWhitespace(c)) {
+		if (!isAtEnd() && Utils.isSpace(c)) {
 			// keep peeking ahead
 			c = peek();
 		}
@@ -611,7 +616,7 @@ public class Scanner {
 			advance();
 		}
 	}
-
+	
 	private boolean isAtEnd() {
 		if (current >= source.length()) {
 			return true;
@@ -627,7 +632,17 @@ public class Scanner {
 	}
 
 	private char lookAt(int index) {
+		if (lookAtEnd(index)) {
+			return '\0';
+		}
 		return source.charAt(index);
+	}
+	
+	private int lookAcrossSpaces(int index) {
+		while (Utils.isSpace(lookAt(index))) {
+			index++;
+		}
+		return index;
 	}
 
 	private String mapSymbol(String symbol) {

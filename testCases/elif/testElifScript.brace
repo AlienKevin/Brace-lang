@@ -16,13 +16,13 @@ if $var == 0{
 	Disp "0"
 } elif $var == 1{
 	Disp "1"
-	if $var2==1{
+	if $var2 == 1{
 		Disp "nested level 2"
-	} elif $var2==0{
+	} elif $var2 == 0{
 		Disp "nested level 2"
-	} elif $var3==0{
+	} elif $var3 == 0{
 		Disp "nested level 2"
-		if $var4==0{
+		if $var4 == 0{
 			Disp "nested level 3"
 		}
 	} else{
