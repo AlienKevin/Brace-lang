@@ -130,6 +130,32 @@ public class Scanner {
 			}
 			// assignment operation handled by variable
 			break;
+		case '|':
+			if (match('|')) {//logical or operation
+				if (!Utils.isSpace(lookAt(current - 3))){//look before the "||" for space
+					addToken(" ");
+				}
+				addToken("or");
+				if (!Utils.isSpace(peek())) {//look after the "||" for space
+					addToken(" ");
+				}
+			} else {
+				addToken("|");//single '|'
+			}
+			break;
+		case '&':
+			if (match('&')) {//logical and operation
+				if (!Utils.isSpace(lookAt(current - 3))){//look before the "&&" for space
+					addToken(" ");
+				}
+				addToken("and");
+				if (!Utils.isSpace(peek())) {//look after the "&&" for space
+					addToken(" ");
+				}
+			} else {
+				addToken("&");//single '&'
+			}
+			break;
 		default:
 			if (Utils.isAlpha(c)) {
 				identifier();
