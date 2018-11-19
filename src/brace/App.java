@@ -29,6 +29,7 @@ public class App {
 		System.out.println("You can convert files from Brace to TI-Basic here");
 		System.out.println("Type \"convert\" to convert file");
 		System.out.println("Type \"store\" to store file address");
+		System.out.println("Type \"back\" to cancel any operation");
 		System.out.println("Type \"exit\" to quit");
 		// initialize path shortcuts
 		loadPathShortcuts();
@@ -77,7 +78,7 @@ public class App {
 		handleCommands(input);
 		handleInput();// continue prompting inputs
 	}
-	
+
 	private static void handleCommands(String input) {
 		switch (input.toLowerCase()) {
 		case "exit":
@@ -92,15 +93,25 @@ public class App {
 		default:
 			if (input.startsWith("cd")) {
 				try {
-					Path path = Paths.get(input.substring("cd".length()).trim());
-					log.out("path entered!");
-					if (basePath != null) {
-						path = addDir(path);
-					}
-					if (Files.exists(path)) {
-						basePath = path;
+					String pathAddress = input.substring("cd".length()).trim();
+					if (pathAddress.equals("..")) {
+						if (basePath.getNameCount() > 0) {//path is not just "C:\\" etc.
+							basePath = basePath.getParent();
+						}
+					} else if(pathAddress.equals(".")) {
+						//already in current directory
+						//do nothing
 					} else {
-						throw new InvalidPathException(path.toString(), "invalid path");
+						Path path = Paths.get(pathAddress);
+						log.out("path entered!");
+						if (basePath != null) {
+							path = addDir(path);
+						}
+						if (Files.exists(path)) {
+							basePath = path;
+						} else {
+							throw new InvalidPathException(path.toString(), "invalid path");
+						}
 					}
 				} catch (InvalidPathException e) {
 					error("Invalid path");
@@ -204,18 +215,7 @@ public class App {
 
 	private static String promptNextLine() {
 		if (basePath != null) {
-			int pathLength = basePath.getNameCount();
-			log.out(pathLength + "");
-			if (pathLength > 1) {
-				// print the second to last subpath
-				System.out.print(basePath.subpath(pathLength - 2, pathLength - 1) + File.separator);
-			}
-			if (pathLength == 0) {// base path is C:\, D:\, etc.
-				System.out.print(basePath);
-			} else {
-				// print the last subpath
-				System.out.print(basePath.subpath(pathLength - 1, pathLength).toString());
-			}
+			System.out.print(basePath);
 		}
 		System.out.print("> ");
 		String nextLine = in.nextLine();
