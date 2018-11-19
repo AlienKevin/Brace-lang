@@ -583,8 +583,9 @@ public class Scanner {
 	}
 
 	private char peek(int n) {
-		if (isAtEnd())
+		if (lookAtEnd(current + n)) {
 			return '\0';
+		}
 		return source.charAt(current + n);
 	}
 
@@ -635,7 +636,7 @@ public class Scanner {
 		}
 		return false;
 	}
-
+	
 	private boolean lookAtEnd(int index) {
 		if (index >= source.length()) {
 			return true;
