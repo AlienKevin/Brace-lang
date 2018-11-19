@@ -74,6 +74,11 @@ public class App {
 
 	private static void handleInput() {
 		String input = promptNextLine();
+		handleCommands(input);
+		handleInput();// continue prompting inputs
+	}
+	
+	private static void handleCommands(String input) {
 		switch (input.toLowerCase()) {
 		case "exit":
 			exit();
@@ -105,7 +110,6 @@ public class App {
 				System.out.println("Please enter \"convert\", \"store\", \"exit\", or \"cd 'path'\"");
 			}
 		}
-		handleInput();// continue prompting inputs
 	}
 
 	private static void handleStore() {
@@ -215,8 +219,13 @@ public class App {
 		}
 		System.out.print("> ");
 		String nextLine = in.nextLine();
-		if (nextLine.equalsIgnoreCase("exit")) {
+		switch (nextLine.toLowerCase()) {
+		case "exit":
 			exit();
+			break;
+		case "back":
+			handleInput();
+			break;
 		}
 		return nextLine;
 	}
