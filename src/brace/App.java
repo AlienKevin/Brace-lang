@@ -171,7 +171,11 @@ public class App {
 
 	private static String promptNextLine() {
 		System.out.print("> ");
-		return in.nextLine();
+		String nextLine = in.nextLine();
+		if (nextLine.equalsIgnoreCase("exit")) {
+			exit();
+		}
+		return nextLine;
 	}
 
 	private static boolean isStoredName(String name) {
