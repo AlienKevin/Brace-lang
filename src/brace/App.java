@@ -19,7 +19,7 @@ import logging.JSimpleLog;
 public class App {
 	private static Scanner in;
 	private static Map<String, File> pathShortcuts;
-	private static final Path pathShortcutStorage = Paths.get("src//brace//pathShortcuts.ser");
+	private static final Path pathShortcutStorage = Paths.get("pathShortcuts.ser");
 	private static Path basePath = Paths.get("");
 	private static final JSimpleLog log = new JSimpleLog();
 
@@ -201,7 +201,7 @@ public class App {
 	private static String promptNextLine() {
 		if (basePath != null) {
 			int pathLength = basePath.getNameCount();
-			System.out.println(pathLength);
+			log.out(pathLength + "");
 			if (pathLength > 1) {
 				// print the second to last subpath
 				System.out.print(basePath.subpath(pathLength - 2, pathLength - 1) + File.separator);

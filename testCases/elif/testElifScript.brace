@@ -6,7 +6,6 @@ func input($str, $var){
 	$var=$doubledVar
 }
 input("var=",$var)
-$var2 = 329
 if false || true{
 	Disp "1"
 } else{
