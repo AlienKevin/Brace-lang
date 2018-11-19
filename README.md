@@ -15,5 +15,19 @@ Here's a list of useful features:
 
 All of the upon features aim at making coding less stressful, tedious and buggy.
 
+## Installation
+In the git repository, click "Brace.jar" and then click "download". After you downloaded the jar file, double click to execute it. If you cannot open the jar file, use command line to execut it. For Windows users, open cmd.exe, navigate to the directory where you stored the jar file and type `java.exe -jar Brace.jar`, then the Brace command line interface should appear.
+
+## Usage
+Brace.jar is a command line interface for you to convert a Brace file to TI-Basic file.
+
+### 1. Convert Brace to TI-Basic
+Here the demo of Brace CLI working in Windows 10:
+![Brace CLI convert demo](https://raw.githubusercontent.com/AlienKevin/Brace-lang/master/demo_images/CLI_convert.PNG "Brace CLI convert demo")
+After you see the welcome message, type `convert` and hit ENTER. The prompt "Enter Brace file address" will show up. Enter your brace file address there. Then, the prompt "Enter TI-Basic file address" will show up. Enter your target TI-Basic file address (maybe empty an empty file or a file with content, ). All of the target TI-Basic file's contents will be replaced by the result of the conversion.
+
+### 2. Make your life easier
+
+
 ## License
 This project is licensed under the terms of the MIT license.
