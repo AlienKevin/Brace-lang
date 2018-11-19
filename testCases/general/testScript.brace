@@ -7,7 +7,7 @@ func input($str, $var){
 }
 $var=32
 $var2=65
-Str1="What's your name?"
+Str1 = "What's your name?"
 input(Str1, $name)
 Disp "should display your name:"
 Disp $name
@@ -16,8 +16,11 @@ $var2=40
 $var3=$var1+$var2
 Disp "$var3 should be: 72"
 Disp $var3
-input("A=",$A)
+input ("A=",$A)
 Disp "should disp: A=0"
+/*
+multi-line comments
+*/
 if $A==0{
 	Disp "A",$A
 	if $B==0{

@@ -58,6 +58,18 @@ public class Scanner {
 		log.setFormLog("identifier", true);
 		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 	}
+	
+	/**
+	 * Turn on/off logging in Scanner class
+	 * @param isLogging whether to log or not
+	 */
+	public void setLog(boolean isLogging) {
+		if (isLogging) {
+			this.log.on();
+		} else {
+			this.log.off();
+		}
+	}
 
 	public void setVariables(List<String> variables) {
 		this.variables.clear();

@@ -9,7 +9,7 @@ import java.nio.file.Path;
 public class Parser {
 	private Path scriptFile;
 	private Path basicFile;
-
+	private boolean isLogging = true;
 	public Parser(Path scriptFile, Path basicFile) {
 		this.scriptFile = scriptFile;
 		this.basicFile = basicFile;
@@ -21,6 +21,10 @@ public class Parser {
 
 	public Parser() {
 		// empty constructor
+	}
+	
+	public void setLog(boolean isLogging) {
+		this.isLogging = isLogging;
 	}
 
 	public String parse() throws IOException {
@@ -43,6 +47,11 @@ public class Parser {
 
 	private String run(String source) {
 		Scanner scanner = new Scanner(source);
+		if (isLogging) {
+			scanner.setLog(true);
+		} else {
+			scanner.setLog(false);
+		}
 		return scanner.scanTokens();
 	}
 
