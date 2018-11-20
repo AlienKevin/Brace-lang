@@ -47,8 +47,6 @@ public class Scanner {
 	private List<Integer> elifCount = Utils.initializeList(new ArrayList<Integer>(), MAX_ELIF_NEST_LEVEL, 0);
 	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
 	private List<Boolean> isEndOfElifs = Utils.initializeList(new ArrayList<Boolean>(), MAX_ELIF_NEST_LEVEL, false);
-	// spaces
-	private boolean ignoreSpaces = true;//default to ignore spaces
 	// logging
 	private JSimpleLog log = new JSimpleLog();
 
@@ -143,13 +141,9 @@ public class Scanner {
 		case '{':
 			updateBlock('{');
 			break;
-		case ' ':
-			if (!ignoreSpaces) {
-				addToken(" ");
-			}
-			break;
 		case '\t':
-			// ignore tab
+		case ' ':
+			// ignore spaces and tabs
 			break;
 		case '$':
 			variable();
@@ -571,7 +565,7 @@ public class Scanner {
 		log.reset();
 		return -1;
 	}
-
+	
 	private String scanConditionalExpression(String keyword) {
 		log.setCategory("main");
 		// storing current state
@@ -582,12 +576,19 @@ public class Scanner {
 		String tempSource = this.source;
 		// set current state to the conditional expression
 		log.out("" + lookAt(start + keyword.length()));
+		int startIndex = start + keyword.length() + 1;//skip over the keyword and "("
+		int endIndex = current - 1;//skip over the ")"
 		String conditionalExpression = "";
-		if (Utils.isSpace(lookAt(start + keyword.length()))) {
+		if (keyword.equalsIgnoreCase("for")) {
+			//keep the parentheses around the conditional expression
+			startIndex = start + keyword.length();//only skip over the keyword, not the "("
+			endIndex = current; //do NOT skip over ")"
+		} else if (Utils.isSpace(lookAt(start + keyword.length()))) {
 			log.out("conditional expr: spaces encountered");
 			conditionalExpression = " ";
+			startIndex ++;//skip over the space
 		}
-		this.resetScanner(source.substring(start + keyword.length(), current));
+		this.resetScanner(source.substring(startIndex, endIndex));
 		conditionalExpression += this.scanTokens();
 		// reset state back to the time before scanning conditional expression
 		this.setSource(tempSource);

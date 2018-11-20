@@ -11,41 +11,41 @@ for($i,0,8,2){
 		Disp $i,$j
 	}
 }
-while $i < 5{
-	while $j < $i{
+while ($i < 5){
+	while ($j < $i){
 	}
 	Dips $i
 }
-if false{
+if (false){
 	doFalse()
 }
-if true{
+if (true){
 	doTrue()
 }
 input("var=",$var)
-if false || true{
+if (false || true){
 	Disp "1"
 } else{
 	Disp "0"
 }
-if $var == 0{
+if ($var == 0){
 	Disp "0"
-} elif $var == 1{
+} elif ($var == 1){
 	Disp "1"
-	if $var2 == 1{
+	if ($var2 == 1){
 		Disp "nested level 2"
-	} elif $var2 == 0{
+	} elif ($var2 == 0){
 		Disp "nested level 2"
-	} elif $var3 == 0{
+	} elif ($var3 == 0){
 		Disp "nested level 2"
-		if $var4 == 0{
+		if ($var4 == 0){
 			Disp "nested level 3"
 		}
 	} else{
 		Disp "nested level 2"
 	}
-} elif $var==2{
+} elif ($var==2){
 	Disp "2"
-} elif $var==3{
+} elif ($var==3){
 	Disp "3"
 }
