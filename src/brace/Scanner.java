@@ -54,8 +54,8 @@ public class Scanner {
 		setSource(source);
 		// set up logging behavior
 		log.categorize("branching", "if", "elif", "else");
-		log.setFormLog("branching", false);
-		log.setFormLog("identifier", true);
+		log.setFormLog("branching", true);
+		log.setFormLog("identifier", false);
 		log.setFormLog("closingBrace", true);
 		log.setFormLog("main", true);
 		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
@@ -341,11 +341,11 @@ public class Scanner {
 				for (int i = 0; i < elifCount.get(elifNestLevel); i++) {
 					addToken("\nEnd");
 				}
-				if (elifNestLevel > 0) {// only decrement nest level
+				//if (elifNestLevel > 0) {// only decrement nest level
 										// if the statement is nested
 					elifNestLevel--;
 				}
-			}
+				// isEndOfElifs.set(elifNestLevel, false);
 		}
 		log.reset();
 	}
@@ -512,13 +512,12 @@ public class Scanner {
 			while (!lookAtEnd(index) && Character.isWhitespace(lookAt(index))) {
 				index++;
 			}
-			log.out("index=" + index);
-			log.out("source.length()=" + source.length());
 			if (Utils.isAlpha(lookAt(index))) {
 				String keyword = source.substring(index, index + 4);
 				if (keyword.equals("else") || keyword.equals("elif")) {
 					// This elif statement is not the last in the chain
 					// Keep looking for more "elif" or "else"
+					isEndOfElifs.set(elifNestLevel, false);
 				} else {
 					// This elif statement is the last in the chain
 					isEndOfElifs.set(elifNestLevel, true);
@@ -536,6 +535,7 @@ public class Scanner {
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
+		log.out("conditionalExpression: " + source.substring(start, current));
 		// always append "Then" after "if"
 		String conditionalExpression = scanConditionalExpression("if");
 		String text = "If" + conditionalExpression + "\nThen";
