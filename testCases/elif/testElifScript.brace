@@ -5,8 +5,22 @@ func input($str, $var){
 	$doubledVar = $var * 2
 	$var = $doubledVar
 }
+$var = 3
 for($i,0,8,2){
-	Disp $i
+	for($j,0,$i,1){
+		Disp $i,$j
+	}
+}
+while $i < 5{
+	while $j < $i{
+	}
+	Dips $i
+}
+if false{
+	doFalse()
+}
+if true{
+	doTrue()
 }
 input("var=",$var)
 if false || true{

@@ -19,15 +19,14 @@ import logging.JSimpleLog;
  *
  */
 public class Scanner {
-	private int start = 0;
-	private int current = 0;
-	private int line = 1;
+	protected int start = 0;
+	protected int current = 0;
+	protected int line = 1;
 	private String source;
 	private String target;
 	private static final List<String> keywords = Arrays
 			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat", "true", "false" });
-	private List<String> variables = new ArrayList<>();
-	private Scanner nestedScanner;
+	protected List<String> variables = new ArrayList<>();
 	// functions
 	private boolean isReadingFunction = false;
 	private Map<String, String> functions = new HashMap<>();
@@ -58,6 +57,7 @@ public class Scanner {
 		log.setFormLog("branching", false);
 		log.setFormLog("identifier", true);
 		log.setFormLog("closingBrace", true);
+		log.setFormLog("main", true);
 		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 	}
 
@@ -73,6 +73,13 @@ public class Scanner {
 		} else {
 			this.log.off();
 		}
+	}
+
+	public void resetScanner(String source) {
+		this.start = 0;
+		this.current = 0;
+		this.line = 1;
+		this.setSource(source);
 	}
 
 	public void setVariables(List<String> variables) {
@@ -96,6 +103,7 @@ public class Scanner {
 	}
 
 	private void scanToken() {
+		log.setCategory("main");
 		char c = advance();
 		switch (c) {
 		case '/':
@@ -147,6 +155,15 @@ public class Scanner {
 			}
 			// assignment operation handled by variable
 			break;
+		case '<':
+		case '>':// relational operators
+			if (match('=')) {// "<=" or ">="
+				advance();// skip over the '='
+				addToken("" + c + '=');// "" must be the first!
+			} else {// "<" or ">"
+				addToken("" + c);
+			}
+			break;
 		case '|':
 			if (match('|')) {// logical or operation
 				if (!Utils.isSpace(lookAt(current - 3))) {// look before the "||" for space
@@ -180,6 +197,7 @@ public class Scanner {
 				addToken(Character.toString(c));
 			}
 		}
+		log.reset();
 	}
 
 	private void newLine(char c) {
@@ -318,7 +336,7 @@ public class Scanner {
 		}
 		log.out("isEndOfElifs=" + isEndOfElifs);
 		log.out("elifNestLevel=" + elifNestLevel);
-		if (elifNestLevel >= 0) {//is in an if-elif-else chain
+		if (elifNestLevel >= 0) {// is in an if-elif-else chain
 			if (Utils.getListElement(isEndOfElifs, elifNestLevel) == true) {
 				for (int i = 0; i < elifCount.get(elifNestLevel); i++) {
 					addToken("\nEnd");
@@ -369,6 +387,9 @@ public class Scanner {
 			case "for":
 				processFor();
 				break;
+			case "while":
+				processWhile();
+				break;
 			default:
 				keyword(identifier);
 			}
@@ -391,14 +412,22 @@ public class Scanner {
 		log.reset();
 	}
 
+	private void processWhile() {
+		processNoThenStatements("while", "While");
+	}
+
 	private void processFor() {
-		log.setType("for");
+		processNoThenStatements("for", "For");
+	}
+
+	private void processNoThenStatements(String braceKeyword, String tiKeyword) {
+		log.setType(braceKeyword);
 		while (peek() != '{' && !isAtEnd()) {
 			advance();
 		}
 		// always append "Then" after "if"
-		String conditionalExpression = scanConditionalExpression("for");
-		String text = "For" + conditionalExpression;
+		String conditionalExpression = scanConditionalExpression(braceKeyword);
+		String text = tiKeyword + conditionalExpression;
 		addToken(text);
 		// restart the elif count
 		log.reset();
@@ -549,10 +578,23 @@ public class Scanner {
 	}
 
 	private String scanConditionalExpression(String keyword) {
-		nestedScanner = new Scanner(source.substring(start + keyword.length(), current));
-		nestedScanner.setVariables(this.variables);
-		String conditionalExpression = nestedScanner.scanTokens();
-		this.setVariables(nestedScanner.variables);
+		log.setCategory("main");
+		// storing current state
+		int tempStart = this.start;
+		int tempCurrent = this.current;
+		int tempLine = this.line;
+		String tempTarget = this.target;
+		String tempSource = this.source;
+		// set current state to the conditional expression
+		this.resetScanner(source.substring(start + keyword.length(), current));
+		String conditionalExpression = this.scanTokens();
+		// reset state back to the time before scanning conditional expression
+		this.setSource(tempSource);
+		this.start = tempStart;
+		this.current = tempCurrent;
+		this.line = tempLine;
+		this.target = tempTarget;
+		log.reset();
 		return conditionalExpression;
 	}
 

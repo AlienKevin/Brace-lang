@@ -1,51 +1,82 @@
-For(|LM(1),0,8,2)
-Disp |LM(1)
+3->|LM(1)
+For(|LM(2),0,8,2)
+For(|LM(3),0,|LM(2),1)
+Disp |LM(2),|LM(3)
+End
+End
+While |LM(2)< 5
+While |LM(3)< |LM(2)
+End
+Dips |LM(2)
+End
+If 0
+Then
+doFalse()
+End
+If 1
+Then
+doTrue()
 End
 Input "var=",A
-A->|LM(2)
-|LM(2)*2->|LF0(1)
-|LF0(1)->|LM(2)
+A->|LM(1)
+|LM(1)*2->|LF0(1)
+|LF0(1)->|LM(1)
 If 0 or 1
 Then
 Disp "1"
  Else
 Disp "0"
 End
-If |LM(2)=0
+If |LM(1)=0
 Then
 Disp "0"
  Else
-If |LM(2)=1
+If |LM(1)=1
 Then
 Disp "1"
-If |LM(3)=1
-Then
-Disp "nested level 2"
- Else
-If |LM(3)=0
+If |LM(4)=1
 Then
 Disp "nested level 2"
  Else
 If |LM(4)=0
 Then
 Disp "nested level 2"
+
+End
+End Else
 If |LM(5)=0
+Then
+Disp "nested level 2"
+If |LM(6)=0
 Then
 Disp "nested level 3"
 End
- Else
+
+End
+End
+End Else
 Disp "nested level 2"
 End
 End
 End
- Else
-If |LM(2)=2
+End
+
+End
+End
+End Else
+If |LM(1)=2
 Then
 Disp "2"
- Else
-If |LM(2)=3
+
+End
+End
+End
+End Else
+If |LM(1)=3
 Then
 Disp "3"
+End
+End
 End
 End
 End
