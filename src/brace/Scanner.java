@@ -12,8 +12,9 @@ import java.util.regex.Pattern;
 import logging.JSimpleLog;
 
 /**
- * Scan the script character by character,
- * based upon the Scanner class in <i>Crafting Interpreter</i> by Bob Nystrom
+ * Scan the script character by character, based upon the Scanner class in
+ * <i>Crafting Interpreter</i> by Bob Nystrom
+ * 
  * @author Kevin Li
  *
  */
@@ -24,7 +25,7 @@ public class Scanner {
 	private String source;
 	private String target;
 	private static final List<String> keywords = Arrays
-			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat", "true", "false"});
+			.asList(new String[] { "if", "else", "elif", "for", "while", "repeat", "true", "false" });
 	private List<String> variables = new ArrayList<>();
 	private Scanner nestedScanner;
 	// functions
@@ -47,21 +48,24 @@ public class Scanner {
 	private List<Integer> elifCount = Utils.initializeList(new ArrayList<Integer>(), MAX_ELIF_NEST_LEVEL, 0);
 	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
 	private List<Boolean> isEndOfElifs = Utils.initializeList(new ArrayList<Boolean>(), MAX_ELIF_NEST_LEVEL, false);
-	//logging
+	// logging
 	private JSimpleLog log = new JSimpleLog();
-	
+
 	public Scanner(String source) {
 		setSource(source);
-		//set up logging behavior
+		// set up logging behavior
 		log.categorize("branching", "if", "elif", "else");
 		log.setFormLog("branching", false);
 		log.setFormLog("identifier", true);
+		log.setFormLog("closingBrace", true);
 		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 	}
-	
+
 	/**
 	 * Turn on/off logging in Scanner class
-	 * @param isLogging whether to log or not
+	 * 
+	 * @param isLogging
+	 *            whether to log or not
 	 */
 	public void setLog(boolean isLogging) {
 		if (isLogging) {
@@ -138,35 +142,35 @@ public class Scanner {
 		case '=':
 			if (!isAtEnd() && peek() == '=') {// equality test
 				addToken("=");
-				advance();//skip over the second '='
+				advance();// skip over the second '='
 				skipSpaces();
 			}
 			// assignment operation handled by variable
 			break;
 		case '|':
-			if (match('|')) {//logical or operation
-				if (!Utils.isSpace(lookAt(current - 3))){//look before the "||" for space
+			if (match('|')) {// logical or operation
+				if (!Utils.isSpace(lookAt(current - 3))) {// look before the "||" for space
 					addToken(" ");
 				}
 				addToken("or");
-				if (!Utils.isSpace(peek())) {//look after the "||" for space
+				if (!Utils.isSpace(peek())) {// look after the "||" for space
 					addToken(" ");
 				}
 			} else {
-				addToken("|");//single '|'
+				addToken("|");// single '|'
 			}
 			break;
 		case '&':
-			if (match('&')) {//logical and operation
-				if (!Utils.isSpace(lookAt(current - 3))){//look before the "&&" for space
+			if (match('&')) {// logical and operation
+				if (!Utils.isSpace(lookAt(current - 3))) {// look before the "&&" for space
 					addToken(" ");
 				}
 				addToken("and");
-				if (!Utils.isSpace(peek())) {//look after the "&&" for space
+				if (!Utils.isSpace(peek())) {// look after the "&&" for space
 					addToken(" ");
 				}
 			} else {
-				addToken("&");//single '&'
+				addToken("&");// single '&'
 			}
 			break;
 		default:
@@ -214,7 +218,7 @@ public class Scanner {
 	private void checkAssignment() {
 		log.setType("assignment");
 		int index = lookAcrossSpaces(current);
-		if (lookAt(index) == '=' && lookAt(index+1) != '=') {// assignment operation
+		if (lookAt(index) == '=' && lookAt(index + 1) != '=') {// assignment operation
 			log.out("assignment statement found!");
 			isAssignment = true;
 		}
@@ -242,7 +246,7 @@ public class Scanner {
 		} else {
 			addToken(getVariable(variableName));
 		}
-		skipSpaces();//skip spaces after variable name
+		skipSpaces();// skip spaces after variable name
 	}
 
 	private String getVariable(String variableName) {
@@ -292,6 +296,7 @@ public class Scanner {
 	}
 
 	private void closingBrace() {
+		log.setType("closingBrace");
 		int n = 0;
 		char c;
 		while (Character.isWhitespace(c = peek(n)) && !isAtEnd()) {
@@ -311,15 +316,20 @@ public class Scanner {
 		} else {
 			addToken("End");
 		}
-		if (Utils.getListElement(isEndOfElifs, elifNestLevel) == true) {
-			for (int i = 0; i < elifCount.get(elifNestLevel); i++) {
-				addToken("\nEnd");
-			}
-			if (elifNestLevel > 0) {// only decrement nest level
-									// if the statement is nested
-				elifNestLevel--;
+		log.out("isEndOfElifs=" + isEndOfElifs);
+		log.out("elifNestLevel=" + elifNestLevel);
+		if (elifNestLevel >= 0) {//is in an if-elif-else chain
+			if (Utils.getListElement(isEndOfElifs, elifNestLevel) == true) {
+				for (int i = 0; i < elifCount.get(elifNestLevel); i++) {
+					addToken("\nEnd");
+				}
+				if (elifNestLevel > 0) {// only decrement nest level
+										// if the statement is nested
+					elifNestLevel--;
+				}
 			}
 		}
+		log.reset();
 	}
 
 	private void string() {
@@ -356,6 +366,9 @@ public class Scanner {
 			case "false":
 				addToken("0");
 				break;
+			case "for":
+				processFor();
+				break;
 			default:
 				keyword(identifier);
 			}
@@ -375,6 +388,19 @@ public class Scanner {
 				}
 			}
 		}
+		log.reset();
+	}
+
+	private void processFor() {
+		log.setType("for");
+		while (peek() != '{' && !isAtEnd()) {
+			advance();
+		}
+		// always append "Then" after "if"
+		String conditionalExpression = scanConditionalExpression("for");
+		String text = "For" + conditionalExpression;
+		addToken(text);
+		// restart the elif count
 		log.reset();
 	}
 
@@ -629,14 +655,14 @@ public class Scanner {
 			advance();
 		}
 	}
-	
+
 	private boolean isAtEnd() {
 		if (current >= source.length()) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private boolean lookAtEnd(int index) {
 		if (index >= source.length()) {
 			return true;
@@ -650,7 +676,7 @@ public class Scanner {
 		}
 		return source.charAt(index);
 	}
-	
+
 	private int lookAcrossSpaces(int index) {
 		while (Utils.isSpace(lookAt(index))) {
 			index++;

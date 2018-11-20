@@ -1,9 +1,12 @@
 func input($str, $var){
 	Input $str,A
-	$var=A
+	$var = A
 	//local variables
-	$doubledVar=$var*2
-	$var=$doubledVar
+	$doubledVar = $var * 2
+	$var = $doubledVar
+}
+for($i,0,8,2){
+	Disp $i
 }
 input("var=",$var)
 if false || true{
