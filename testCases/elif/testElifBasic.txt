@@ -4,44 +4,44 @@ For(|LM(3),0,|LM(2),1)
 Disp |LM(2),|LM(3)
 End
 End
-While |LM(2)< 5
-While |LM(3)< |LM(2)
+While |LM(2)<5
+While |LM(3)<|LM(2)
 End
 Dips |LM(2)
 End
 If 0
 Then
-doFalse()
+doFalse ()
 End
 If 1
 Then
-doTrue()
+doTrue ()
 End
-Input "var=",A
-A->|LM(1)
+Input "var=",A 
+A ->|LM(1)
 |LM(1)*2->|LF0(1)
 |LF0(1)->|LM(1)
 If 0 or 1
 Then
 Disp "1"
- Else
+Else
 Disp "0"
 End
 If |LM(1)=0
 Then
 Disp "0"
- Else
+Else
 If |LM(1)=1
 Then
 Disp "1"
 If |LM(4)=1
 Then
 Disp "nested level 2"
- Else
+Else
 If |LM(4)=0
 Then
 Disp "nested level 2"
- Else
+Else
 If |LM(5)=0
 Then
 Disp "nested level 2"
@@ -49,16 +49,16 @@ If |LM(6)=0
 Then
 Disp "nested level 3"
 End
- Else
+Else
 Disp "nested level 2"
 End
 End
 End
- Else
+Else
 If |LM(1)=2
 Then
 Disp "2"
- Else
+Else
 If |LM(1)=3
 Then
 Disp "3"

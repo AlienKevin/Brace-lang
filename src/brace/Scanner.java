@@ -47,6 +47,8 @@ public class Scanner {
 	private List<Integer> elifCount = Utils.initializeList(new ArrayList<Integer>(), MAX_ELIF_NEST_LEVEL, 0);
 	private int elifNestLevel = -1; // default before encountering any "if"s and "elif"s
 	private List<Boolean> isEndOfElifs = Utils.initializeList(new ArrayList<Boolean>(), MAX_ELIF_NEST_LEVEL, false);
+	// spaces
+	private boolean ignoreSpaces = true;//default to ignore spaces
 	// logging
 	private JSimpleLog log = new JSimpleLog();
 
@@ -54,9 +56,9 @@ public class Scanner {
 		setSource(source);
 		// set up logging behavior
 		log.categorize("branching", "if", "elif", "else");
-		log.setFormLog("branching", true);
+		log.setFormLog("branching", false);
 		log.setFormLog("identifier", false);
-		log.setFormLog("closingBrace", true);
+		log.setFormLog("closingBrace", false);
 		log.setFormLog("main", true);
 		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 	}
@@ -141,6 +143,11 @@ public class Scanner {
 		case '{':
 			updateBlock('{');
 			break;
+		case ' ':
+			if (!ignoreSpaces) {
+				addToken(" ");
+			}
+			break;
 		case '\t':
 			// ignore tab
 			break;
@@ -166,26 +173,14 @@ public class Scanner {
 			break;
 		case '|':
 			if (match('|')) {// logical or operation
-				if (!Utils.isSpace(lookAt(current - 3))) {// look before the "||" for space
-					addToken(" ");
-				}
-				addToken("or");
-				if (!Utils.isSpace(peek())) {// look after the "||" for space
-					addToken(" ");
-				}
+				addToken(" or ");
 			} else {
 				addToken("|");// single '|'
 			}
 			break;
 		case '&':
 			if (match('&')) {// logical and operation
-				if (!Utils.isSpace(lookAt(current - 3))) {// look before the "&&" for space
-					addToken(" ");
-				}
-				addToken("and");
-				if (!Utils.isSpace(peek())) {// look after the "&&" for space
-					addToken(" ");
-				}
+				addToken(" and ");
 			} else {
 				addToken("&");// single '&'
 			}
@@ -405,7 +400,7 @@ public class Scanner {
 					// other TI-Basic keywords, like "getKey", "Str1", etc.
 					log.out("identifier: " + identifier);
 					checkAssignment();
-					addToken(identifier);
+					addToken(identifier + " ");//add a space after built-in functions
 				}
 			}
 		}
@@ -586,8 +581,14 @@ public class Scanner {
 		String tempTarget = this.target;
 		String tempSource = this.source;
 		// set current state to the conditional expression
+		log.out("" + lookAt(start + keyword.length()));
+		String conditionalExpression = "";
+		if (Utils.isSpace(lookAt(start + keyword.length()))) {
+			log.out("conditional expr: spaces encountered");
+			conditionalExpression = " ";
+		}
 		this.resetScanner(source.substring(start + keyword.length(), current));
-		String conditionalExpression = this.scanTokens();
+		conditionalExpression += this.scanTokens();
 		// reset state back to the time before scanning conditional expression
 		this.setSource(tempSource);
 		this.start = tempStart;
