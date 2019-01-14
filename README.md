@@ -1,6 +1,7 @@
 # Brace
 Brace is a modern scripting language for TI-83 and TI-84 calculators. Brace is designed to make programming Texas Instrument calculators more easily and enjoyable.
-Here's a screenshot of editing Brace in Sublime Text 3:
+<br><b>Warning: This parser does not check for syntax errors, so be sure to follow the syntax rules listed in the features list carefully. It is recommended that you use Brace to write small programs shorter than 300 or so lines so that you can spot errors. Contribution is extremely welcome if anyone wants to write a parser for Brace :)</b>
+<br><br>Here's a screenshot of editing Brace in Sublime Text 3:
 
 <img src="https://github.com/AlienKevin/Brace-lang/blob/master/demo_images/Brace_editor_1.PNG" width="374" heigt="433.7">
 
